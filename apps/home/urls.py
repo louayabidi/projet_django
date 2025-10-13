@@ -10,8 +10,12 @@ urlpatterns = [
 
     # The home page
     path('', views.index, name='home'),
+    
+    # Admin book management routes
+    path('admin-books/', views.admin_books_list, name='admin_books_list'),
+    path('admin-books/<int:id>/', views.admin_book_detail, name='admin_book_detail'),
 
     # Matches any html file
-    re_path(r'^.*\.*', views.pages, name='pages'),
+    re_path(r'^.*\.html$', views.pages, name='pages'),
 
 ]

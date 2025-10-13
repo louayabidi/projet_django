@@ -1,0 +1,1280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.id %}Modifier un livre{% else %}Ajouter un livre{% endif %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/img/favicon/favicon-32x32.png">
+
+    <!-- Bootstrap & Volt -->
+    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            padding: 40px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Floating particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: floatParticles 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes floatParticles {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(5deg); }
+            66% { transform: translateY(-10px) rotate(-5deg); }
+        }
+        
+        /* 3D Books Container */
+        .books-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            perspective: 1500px;
+            perspective-origin: 50% 50%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* 3D Book */
+        .floating-book {
+            position: absolute;
+            width: 100px;
+            height: 140px;
+            transform-style: preserve-3d;
+            animation: floatBook 15s ease-in-out infinite;
+            opacity: 0.85;
+            filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.4));
+            transition: all 0.3s ease;
+        }
+        
+        .floating-book:hover {
+            filter: drop-shadow(0 25px 60px rgba(255, 255, 255, 0.6)) brightness(1.3);
+            transform: scale(1.2);
+        }
+        
+        .book-cover,
+        .book-spine,
+        .book-back,
+        .book-top,
+        .book-bottom,
+        .book-pages {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        
+        .book-cover {
+            width: 100px;
+            height: 140px;
+            transform: translateZ(15px);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
+            border-radius: 6px;
+            box-shadow: 
+                0 0 40px currentColor,
+                inset 0 0 50px rgba(255, 255, 255, 0.2),
+                inset 5px 5px 20px rgba(255, 255, 255, 0.3),
+                inset -5px -5px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-cover::before {
+            content: '📚';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            opacity: 0.9;
+            animation: bookIconPulse 3s ease-in-out infinite;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.5),
+                0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes bookIconPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .book-cover::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.4) 50%,
+                transparent 70%
+            );
+            animation: bookShine 4s linear infinite;
+        }
+        
+        @keyframes bookShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .book-spine {
+            width: 30px;
+            height: 140px;
+            transform: rotateY(-90deg) translateZ(85px);
+            background: linear-gradient(90deg, 
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(118, 75, 162, 0.7) 20%,
+                rgba(102, 126, 234, 0.7) 80%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            box-shadow: 
+                inset 2px 0 10px rgba(0, 0, 0, 0.5),
+                inset -2px 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .book-back {
+            width: 100px;
+            height: 140px;
+            transform: translateZ(-15px) rotateY(180deg);
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.5), rgba(79, 172, 254, 0.5));
+            border-radius: 6px;
+            box-shadow: 
+                0 0 30px currentColor,
+                inset 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .book-top {
+            width: 100px;
+            height: 30px;
+            transform: rotateX(90deg) translateZ(125px);
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.4);
+        }
+        
+        .book-bottom {
+            width: 100px;
+            height: 30px;
+            transform: rotateX(-90deg) translateZ(15px);
+            background: linear-gradient(180deg, 
+                rgba(0, 0, 0, 0.4) 0%,
+                rgba(0, 0, 0, 0.2) 100%
+            );
+            box-shadow: inset 0 -2px 10px rgba(0, 0, 0, 0.6);
+        }
+        
+        .book-pages {
+            width: 94px;
+            height: 134px;
+            transform: translateZ(13px) translateX(3px) translateY(3px);
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.8) 0px,
+                rgba(255, 255, 255, 0.7) 1px,
+                rgba(240, 240, 240, 0.6) 2px
+            );
+            border-radius: 4px;
+            box-shadow: 
+                inset 2px 0 5px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Different book animations with enhanced movements */
+        @keyframes floatBook {
+            0% {
+                transform: translateY(0) translateX(0) translateZ(0) 
+                           rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);
+            }
+            20% {
+                transform: translateY(-80px) translateX(40px) translateZ(100px) 
+                           rotateX(25deg) rotateY(180deg) rotateZ(15deg) scale(1.1);
+            }
+            40% {
+                transform: translateY(-150px) translateX(-50px) translateZ(50px) 
+                           rotateX(-20deg) rotateY(360deg) rotateZ(-10deg) scale(0.9);
+            }
+            60% {
+                transform: translateY(-100px) translateX(60px) translateZ(150px) 
+                           rotateX(30deg) rotateY(540deg) rotateZ(20deg) scale(1.15);
+            }
+            80% {
+                transform: translateY(-60px) translateX(-30px) translateZ(80px) 
+                           rotateX(-15deg) rotateY(720deg) rotateZ(-5deg) scale(1.05);
+            }
+            100% {
+                transform: translateY(0) translateX(0) translateZ(0) 
+                           rotateX(0deg) rotateY(900deg) rotateZ(0deg) scale(1);
+            }
+        }
+        
+        @keyframes floatBook2 {
+            0% {
+                transform: translateY(-50px) translateX(30px) translateZ(50px) 
+                           rotateX(15deg) rotateY(0deg) rotateZ(10deg) scale(1);
+            }
+            25% {
+                transform: translateY(-180px) translateX(-60px) translateZ(120px) 
+                           rotateX(-30deg) rotateY(90deg) rotateZ(-20deg) scale(1.2);
+            }
+            50% {
+                transform: translateY(-120px) translateX(70px) translateZ(200px) 
+                           rotateX(35deg) rotateY(270deg) rotateZ(25deg) scale(0.85);
+            }
+            75% {
+                transform: translateY(-70px) translateX(-40px) translateZ(100px) 
+                           rotateX(-25deg) rotateY(450deg) rotateZ(-15deg) scale(1.1);
+            }
+            100% {
+                transform: translateY(-50px) translateX(30px) translateZ(50px) 
+                           rotateX(15deg) rotateY(540deg) rotateZ(10deg) scale(1);
+            }
+        }
+        
+        @keyframes floatBook3 {
+            0% {
+                transform: translateY(-100px) translateX(-50px) translateZ(80px) 
+                           rotateX(-25deg) rotateY(0deg) rotateZ(-15deg) scale(1);
+            }
+            30% {
+                transform: translateY(-40px) translateX(50px) translateZ(180px) 
+                           rotateX(40deg) rotateY(120deg) rotateZ(30deg) scale(1.25);
+            }
+            60% {
+                transform: translateY(-160px) translateX(-30px) translateZ(60px) 
+                           rotateX(-35deg) rotateY(300deg) rotateZ(-25deg) scale(0.95);
+            }
+            90% {
+                transform: translateY(-80px) translateX(40px) translateZ(140px) 
+                           rotateX(20deg) rotateY(480deg) rotateZ(18deg) scale(1.12);
+            }
+            100% {
+                transform: translateY(-100px) translateX(-50px) translateZ(80px) 
+                           rotateX(-25deg) rotateY(600deg) rotateZ(-15deg) scale(1);
+            }
+        }
+        
+        @keyframes floatBook4 {
+            0% {
+                transform: translateY(0) translateX(0) translateZ(100px) 
+                           rotateX(10deg) rotateY(45deg) rotateZ(5deg) scale(1);
+            }
+            33% {
+                transform: translateY(-130px) translateX(55px) translateZ(220px) 
+                           rotateX(-28deg) rotateY(180deg) rotateZ(-18deg) scale(1.18);
+            }
+            66% {
+                transform: translateY(-90px) translateX(-45px) translateZ(70px) 
+                           rotateX(32deg) rotateY(405deg) rotateZ(22deg) scale(0.88);
+            }
+            100% {
+                transform: translateY(0) translateX(0) translateZ(100px) 
+                           rotateX(10deg) rotateY(630deg) rotateZ(5deg) scale(1);
+            }
+        }
+        
+        /* Book color variations with enhanced styling */
+        .floating-book:nth-child(1) {
+            left: 10%;
+            top: 20%;
+            animation: floatBook 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+        }
+        
+        .floating-book:nth-child(1) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(255, 107, 107, 0.7) 0%, 
+                rgba(238, 90, 111, 0.7) 50%,
+                rgba(255, 71, 87, 0.7) 100%);
+            color: rgba(255, 107, 107, 1);
+        }
+        
+        .floating-book:nth-child(2) {
+            left: 80%;
+            top: 30%;
+            animation: floatBook2 20s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -5s;
+        }
+        
+        .floating-book:nth-child(2) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(76, 175, 80, 0.7) 0%, 
+                rgba(69, 160, 73, 0.7) 50%,
+                rgba(56, 142, 60, 0.7) 100%);
+            color: rgba(76, 175, 80, 1);
+        }
+        
+        .floating-book:nth-child(3) {
+            left: 15%;
+            top: 70%;
+            animation: floatBook3 22s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -10s;
+        }
+        
+        .floating-book:nth-child(3) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(255, 217, 61, 0.7) 0%, 
+                rgba(246, 194, 62, 0.7) 50%,
+                rgba(255, 235, 59, 0.7) 100%);
+            color: rgba(255, 217, 61, 1);
+        }
+        
+        .floating-book:nth-child(4) {
+            left: 70%;
+            top: 60%;
+            animation: floatBook4 16s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -8s;
+        }
+        
+        .floating-book:nth-child(4) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(79, 172, 254, 0.7) 0%, 
+                rgba(0, 242, 254, 0.7) 50%,
+                rgba(3, 169, 244, 0.7) 100%);
+            color: rgba(79, 172, 254, 1);
+        }
+        
+        .floating-book:nth-child(5) {
+            left: 50%;
+            top: 15%;
+            animation: floatBook 19s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -12s;
+        }
+        
+        .floating-book:nth-child(5) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(240, 147, 251, 0.7) 0%, 
+                rgba(245, 101, 250, 0.7) 50%,
+                rgba(233, 30, 99, 0.7) 100%);
+            color: rgba(240, 147, 251, 1);
+        }
+        
+        .floating-book:nth-child(6) {
+            left: 30%;
+            top: 50%;
+            animation: floatBook2 21s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -15s;
+        }
+        
+        .floating-book:nth-child(6) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(255, 159, 64, 0.7) 0%, 
+                rgba(255, 99, 71, 0.7) 50%,
+                rgba(255, 87, 34, 0.7) 100%);
+            color: rgba(255, 159, 64, 1);
+        }
+        
+        .floating-book:nth-child(7) {
+            left: 85%;
+            top: 80%;
+            animation: floatBook3 17s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -6s;
+        }
+        
+        .floating-book:nth-child(7) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(156, 39, 176, 0.7) 0%, 
+                rgba(123, 31, 162, 0.7) 50%,
+                rgba(142, 36, 170, 0.7) 100%);
+            color: rgba(156, 39, 176, 1);
+        }
+        
+        .floating-book:nth-child(8) {
+            left: 60%;
+            top: 10%;
+            animation: floatBook4 23s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            animation-delay: -18s;
+        }
+        
+        .floating-book:nth-child(8) .book-cover {
+            background: linear-gradient(135deg, 
+                rgba(33, 150, 243, 0.7) 0%, 
+                rgba(21, 101, 192, 0.7) 50%,
+                rgba(25, 118, 210, 0.7) 100%);
+            color: rgba(33, 150, 243, 1);
+        }
+        
+        /* Add particle trails to books */
+        .floating-book::after {
+            content: '✨';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: particleTrail 3s ease-in-out infinite;
+            pointer-events: none;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes particleTrail {
+            0%, 100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+        
+        .form-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .page-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 35px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: slideDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .page-header h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin: 0;
+            font-weight: 800;
+            text-shadow: 
+                0 2px 10px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.3);
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .page-header .subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            margin-top: 12px;
+            font-size: 1.1rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 
+                0 30px 90px rgba(0, 0, 0, 0.25),
+                0 0 1px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: slideUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .form-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 35px 40px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: rotateGlow 10s linear infinite;
+        }
+        
+        @keyframes rotateGlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .form-card-header h2 {
+            margin: 0;
+            font-size: 1.9rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-card-body {
+            padding: 45px 40px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+        }
+        
+        .form-label {
+            font-weight: 700;
+            color: #2d3142;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+        
+        .form-label i {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.1rem;
+        }
+        
+        .form-control, .form-select {
+            border: 3px solid transparent;
+            background: #fff;
+            border-radius: 15px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 4px 15px rgba(102, 126, 234, 0.1),
+                inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 
+                0 8px 30px rgba(102, 126, 234, 0.25),
+                0 0 0 4px rgba(102, 126, 234, 0.1),
+                inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px) scale(1.01);
+            outline: none;
+        }
+        
+        .form-control::placeholder {
+            color: #a8b3cf;
+            font-style: italic;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 16px 40px;
+            font-weight: 700;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 10px 30px rgba(102, 126, 234, 0.4),
+                0 0 0 0 rgba(102, 126, 234, 0.5);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(102, 126, 234, 0.5),
+                0 0 0 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            border: none;
+            padding: 16px 35px;
+            font-weight: 700;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(108, 117, 125, 0.4);
+        }
+        
+        .form-row {
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+        
+        .form-row:nth-child(1) { animation-delay: 0.1s; }
+        .form-row:nth-child(2) { animation-delay: 0.2s; }
+        .form-row:nth-child(3) { animation-delay: 0.3s; }
+        .form-row:nth-child(4) { animation-delay: 0.4s; }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .required-mark {
+            color: #ff6b6b;
+            margin-left: 5px;
+            font-size: 1.2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .form-help {
+            font-size: 0.9rem;
+            color: #667eea;
+            margin-top: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .alert {
+            border-radius: 20px;
+            border: none;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .back-link {
+            color: rgba(255, 255, 255, 1);
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-8px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .error-text {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .char-counter {
+            position: absolute;
+            bottom: 12px;
+            right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 25px 20px;
+            }
+            
+            .form-card-body {
+                padding: 30px 25px;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-card-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Sparkle effect */
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Floating Books Background -->
+    <div class="books-container">
+        <!-- Book 1 - Red -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 2 - Green -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 3 - Yellow -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 4 - Cyan -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 5 - Pink -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 6 - Orange -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 7 - Purple -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+        
+        <!-- Book 8 - Blue -->
+        <div class="floating-book">
+            <div class="book-cover"></div>
+            <div class="book-pages"></div>
+            <div class="book-spine"></div>
+            <div class="book-back"></div>
+            <div class="book-top"></div>
+            <div class="book-bottom"></div>
+        </div>
+    </div>
+
+    <div class="container form-wrapper">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>
+                        <i class="fas fa-{% if form.instance.id %}edit{% else %}plus-circle{% endif %} me-2"></i>
+                        {% if form.instance.id %}
+                        Modifier un livre
+                        {% else %}
+                        Ajouter un livre
+                        {% endif %}
+                    </h1>
+                    <p class="subtitle mb-0">
+                        {% if form.instance.id %}
+                        Modifiez les informations de votre livre
+                        {% else %}
+                        Ajoutez un nouveau livre à votre collection
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{% url 'book_list' %}" class="back-link">
+                    <i class="fas fa-arrow-left me-2"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2>
+                    <i class="fas fa-book me-2"></i>
+                    Informations du livre
+                </h2>
+            </div>
+
+            <div class="form-card-body">
+                <form method="post" id="bookForm">
+                    {% csrf_token %}
+
+                    <!-- Title Field -->
+                    <div class="form-row">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="fas fa-heading me-2"></i>
+                            Titre du livre
+                            <span class="required-mark">*</span>
+                        </label>
+                        <input type="text" name="{{ form.title.name }}" 
+                               class="form-control" 
+                               id="{{ form.title.id_for_label }}"
+                               value="{{ form.title.value|default:'' }}"
+                               placeholder="Ex: Le Petit Prince"
+                               required>
+                        {% if form.title.errors %}
+                            <span class="error-text">{{ form.title.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Genre Field -->
+                    <div class="form-row">
+                        <label for="{{ form.genre.id_for_label }}" class="form-label">
+                            <i class="fas fa-tag me-2"></i>
+                            Genre
+                            <span class="required-mark">*</span>
+                        </label>
+                        <input type="text" name="{{ form.genre.name }}" 
+                               class="form-control" 
+                               id="{{ form.genre.id_for_label }}"
+                               value="{{ form.genre.value|default:'' }}"
+                               placeholder="Ex: Science-fiction, Roman, Thriller..."
+                               required>
+                        {% if form.genre.errors %}
+                            <span class="error-text">{{ form.genre.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status Field -->
+                    <div class="form-row">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Statut
+                            <span class="required-mark">*</span>
+                        </label>
+                        {{ form.status }}
+                        <p class="form-help">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Indiquez l'état d'avancement de votre lecture
+                        </p>
+                        {% if form.status.errors %}
+                            <span class="error-text">{{ form.status.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Synopsis Field -->
+                    <div class="form-row">
+                        <label for="{{ form.synopsis.id_for_label }}" class="form-label">
+                            <i class="fas fa-align-left me-2"></i>
+                            Synopsis / Description
+                            <span class="required-mark">*</span>
+                        </label>
+                        <textarea name="{{ form.synopsis.name }}" 
+                                  class="form-control" 
+                                  id="{{ form.synopsis.id_for_label }}"
+                                  placeholder="Décrivez brièvement le livre, son histoire, vos impressions..."
+                                  required>{{ form.synopsis.value|default:'' }}</textarea>
+                        <p class="form-help">
+                            <i class="fas fa-keyboard me-1"></i>
+                            Minimum 10 caractères recommandés
+                        </p>
+                        {% if form.synopsis.errors %}
+                            <span class="error-text">{{ form.synopsis.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top: 2px solid #e6e7ee;">
+                        <a href="{% url 'book_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if form.instance.id %}
+                            Mettre à jour
+                            {% else %}
+                            Enregistrer le livre
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="/static/assets/vendor/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="/static/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Smooth entrance animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add ripple effect to buttons
+            document.querySelectorAll('.btn-primary, .btn-secondary').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    let ripple = document.createElement('span');
+                    let rect = this.getBoundingClientRect();
+                    let size = Math.max(rect.width, rect.height);
+                    let x = e.clientX - rect.left - size / 2;
+                    let y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple-effect');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+            
+            // Enhanced focus effects with sparkles
+            document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    createSparkles(this);
+                });
+            });
+
+            // Character counter for synopsis
+            const synopsisField = document.querySelector('textarea[name="synopsis"]');
+            if (synopsisField) {
+                const wrapper = synopsisField.parentElement;
+                wrapper.style.position = 'relative';
+                
+                const counter = document.createElement('span');
+                counter.className = 'char-counter';
+                counter.textContent = '0';
+                wrapper.appendChild(counter);
+                
+                synopsisField.addEventListener('input', function() {
+                    const length = this.value.length;
+                    counter.textContent = length;
+                    
+                    // Color change based on length
+                    if (length < 10) {
+                        counter.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+                    } else if (length < 50) {
+                        counter.style.background = 'linear-gradient(135deg, #ffd93d 0%, #f6c23e 100%)';
+                    } else {
+                        counter.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
+                    }
+                });
+            }
+
+            // Floating labels animation
+            document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value) {
+                        this.classList.add('has-value');
+                    } else {
+                        this.classList.remove('has-value');
+                    }
+                });
+            });
+
+            // Add parallax effect to header
+            document.addEventListener('mousemove', function(e) {
+                const header = document.querySelector('.page-header');
+                if (header) {
+                    const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+                    const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+                    header.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                }
+            });
+
+            // Create sparkle effect
+            function createSparkles(element) {
+                const rect = element.getBoundingClientRect();
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle';
+                        sparkle.style.cssText = `
+                            position: fixed;
+                            width: 8px;
+                            height: 8px;
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            border-radius: 50%;
+                            pointer-events: none;
+                            z-index: 10000;
+                            animation: sparkle 0.8s ease-out forwards;
+                            left: ${rect.left + Math.random() * rect.width}px;
+                            top: ${rect.top + Math.random() * rect.height}px;
+                            box-shadow: 0 0 10px rgba(102, 126, 234, 0.8);
+                        `;
+                        document.body.appendChild(sparkle);
+                        setTimeout(() => sparkle.remove(), 800);
+                    }, i * 100);
+                }
+            }
+
+            // Smooth scroll reveal for form rows
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.form-row').forEach(row => {
+                observer.observe(row);
+            });
+
+            // Success confetti on submit
+            const form = document.getElementById('bookForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // Create confetti effect
+                    for (let i = 0; i < 50; i++) {
+                        setTimeout(() => {
+                            const confetti = document.createElement('div');
+                            confetti.style.cssText = `
+                                position: fixed;
+                                width: ${Math.random() * 10 + 5}px;
+                                height: ${Math.random() * 10 + 5}px;
+                                background: hsl(${Math.random() * 360}, 100%, 50%);
+                                left: ${Math.random() * 100}vw;
+                                top: -20px;
+                                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                                pointer-events: none;
+                                z-index: 10000;
+                                animation: confettiFall ${Math.random() * 2 + 2}s linear forwards;
+                            `;
+                            document.body.appendChild(confetti);
+                            setTimeout(() => confetti.remove(), 4000);
+                        }, i * 30);
+                    }
+                });
+            }
+
+            // Add dynamic styles for animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes confettiFall {
+                    to {
+                        transform: translateY(100vh) rotate(${Math.random() * 720}deg);
+                        opacity: 0;
+                    }
+                }
+                
+                .ripple-effect {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.6);
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                }
+                
+                @keyframes ripple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+
+</html>

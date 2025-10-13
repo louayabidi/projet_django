@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Livres | Gestion de Bibliothèque</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/img/favicon/favicon-32x32.png">
+
+    <!-- Bootstrap 5 & Volt CSS -->
+    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="books-page">
+    
+    <!-- Hero Section -->
+    <section class="books-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="book-icon-hero mb-4 glow">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h1 class="mb-3">
+                        Ma Bibliothèque <span class="gradient-text">Personnelle</span>
+                    </h1>
+                    <p class="lead">
+                        Gérez votre collection de livres avec style et simplicité
+                    </p>
+                    <a href="{% url 'book_create' %}" class="btn btn-add-book">
+                        <i class="fas fa-plus me-2"></i> Ajouter un nouveau livre
+                    </a>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="stats-card">
+                        <h3>{{ books.count }}</h3>
+                        <p>Livre{{ books.count|pluralize }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Books Container -->
+    <section class="books-container">
+        <div class="container">
+            
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-custom alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Books Grid -->
+            {% if books %}
+            <div class="row">
+                {% for book in books %}
+                <div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
+                    <div class="book-card">
+                        <div class="book-card-header">
+                            <h3 class="book-card-title">
+                                <i class="fas fa-book me-2"></i>
+                                {{ book.title }}
+                            </h3>
+                        </div>
+                        <div class="book-card-body">
+                            <div class="book-meta">
+                                <i class="fas fa-tag"></i>
+                                <strong class="me-1">Genre:</strong> {{ book.genre }}
+                            </div>
+                            
+                            <div class="book-meta">
+                                <i class="fas fa-info-circle"></i>
+                                <strong class="me-1">Statut:</strong>
+                                <span class="book-status 
+                                    {% if book.status == 'en_cours' %}status-en-cours
+                                    {% elif book.status == 'termine' %}status-termine
+                                    {% else %}status-archive{% endif %}">
+                                    {% if book.status == 'en_cours' %}
+                                        <i class="fas fa-spinner me-1"></i> En cours
+                                    {% elif book.status == 'termine' %}
+                                        <i class="fas fa-check me-1"></i> Terminé
+                                    {% else %}
+                                        <i class="fas fa-archive me-1"></i> Archivé
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="book-meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
+                            </div>
+                            
+                            {% if book.synopsis %}
+                            <div class="book-meta mt-3">
+                                <i class="fas fa-align-left"></i>
+                                <strong class="me-1">Synopsis:</strong>
+                            </div>
+                            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                {{ book.synopsis|truncatewords:20 }}
+                            </p>
+                            {% endif %}
+                            
+                            <div class="book-actions">
+                                <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </a>
+                                <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
+                                    <i class="fas fa-edit me-1"></i> Modifier
+                                </a>
+                                <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete">
+                                    <i class="fas fa-trash-alt me-1"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <h3>Aucun livre dans votre bibliothèque</h3>
+                <p>Commencez à construire votre collection dès maintenant !</p>
+                <a href="{% url 'book_create' %}" class="btn btn-add-book">
+                    <i class="fas fa-plus me-2"></i> Ajouter votre premier livre
+                </a>
+            </div>
+            {% endif %}
+            
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="/static/assets/vendor/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="/static/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+    
+    <!-- Custom Animation Script -->
+    <script>
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.book-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+
+</html>
