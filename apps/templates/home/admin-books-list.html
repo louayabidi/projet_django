@@ -1,0 +1,124 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Gestion des Livres {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                    <li class="breadcrumb-item">
+                        <a href="/">
+                            <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="/dashboard.html">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestion des Livres</li>
+                </ol>
+            </nav>
+            <h2 class="h4">Gestion des Livres</h2>
+            <p class="mb-0">Vue d'ensemble de tous les livres de tous les artistes</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Total des livres: <span class="badge bg-primary">{{ total_books }}</span></h5>
+                <div>
+                    <span class="badge bg-info">Mode lecture seule</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if books %}
+    <div class="card border-0 shadow">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="fs-5 fw-bold mb-0">Liste de tous les livres</h2>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-bottom" scope="col">#</th>
+                        <th class="border-bottom" scope="col">Titre</th>
+                        <th class="border-bottom" scope="col">Auteur</th>
+                        <th class="border-bottom" scope="col">Genre</th>
+                        <th class="border-bottom" scope="col">Statut</th>
+                        <th class="border-bottom" scope="col">Date de création</th>
+                        <th class="border-bottom" scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td class="text-gray-900">{{ forloop.counter }}</td>
+                        <td class="fw-bolder text-gray-900">{{ book.title }}</td>
+                        <td class="text-gray-900">
+                            <div class="d-flex align-items-center">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                {{ book.author.username }}
+                            </div>
+                        </td>
+                        <td class="text-gray-900">{{ book.genre }}</td>
+                        <td>
+                            {% if book.status == 'en_cours' %}
+                                <span class="badge bg-warning text-dark">En cours</span>
+                            {% elif book.status == 'termine' %}
+                                <span class="badge bg-success">Terminé</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Archivé</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-900">{{ book.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'admin_book_detail' book.id %}" class="btn btn-sm btn-primary">
+                                <svg class="icon icon-xs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                Voir
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+            <nav aria-label="Page navigation">
+                <small class="fw-bold">Affichage de {{ books.count }} livre{{ books.count|pluralize }} au total</small>
+            </nav>
+        </div>
+    </div>
+    {% else %}
+    <div class="card border-0 shadow">
+        <div class="card-body text-center py-5">
+            <svg class="icon icon-xl text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <h5 class="text-gray-600">Aucun livre disponible</h5>
+            <p class="text-gray-500">Les artistes n'ont pas encore ajouté de livres.</p>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+
+

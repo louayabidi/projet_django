@@ -56,6 +56,21 @@
                                     <span class="text-error">{{ form.email.errors }}</span>
                                 </div>
                                 <!-- End of Form -->
+                                
+                                <!-- Role Selection -->
+                                <div class="form-group mb-4">
+                                    <label for="role">Votre Rôle</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon-role">
+                                            <span class="fas fa-user-tag"></span>
+                                        </span>
+                                        {{ form.role }}
+                                    </div>
+                                    <small class="form-text text-muted">{{ form.role.help_text }}</small>
+                                    <span class="text-error">{{ form.role.errors }}</span>
+                                </div>
+                                <!-- End of Role -->
+                                
                                 <div class="form-group">
                                     
                                     <!-- Form -->

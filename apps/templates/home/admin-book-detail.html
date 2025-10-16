@@ -1,0 +1,174 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Détails du Livre {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                    <li class="breadcrumb-item">
+                        <a href="/">
+                            <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="/dashboard.html">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_books_list' %}">Gestion des Livres</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ book.title }}</li>
+                </ol>
+            </nav>
+            <h2 class="h4">Détails du Livre</h2>
+            <p class="mb-0">Informations complètes (lecture seule)</p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'admin_books_list' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Informations du Livre</h5>
+                    <span class="badge bg-info">Mode lecture seule</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Titre:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="text-gray-900 mb-0">{{ book.title }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Genre:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="text-gray-900 mb-0">{{ book.genre }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Statut:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            {% if book.status == 'en_cours' %}
+                                <span class="badge bg-warning text-dark">En cours</span>
+                            {% elif book.status == 'termine' %}
+                                <span class="badge bg-success">Terminé</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Archivé</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Synopsis:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="text-gray-900 mb-0" style="white-space: pre-wrap;">{{ book.synopsis }}</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Auteur:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex align-items-center">
+                                <svg class="icon icon-sm me-2 text-primary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                <span class="text-gray-900 fw-bold">{{ book.author.username }}</span>
+                                {% if book.author.email %}
+                                    <span class="text-gray-500 ms-2">({{ book.author.email }})</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Date de création:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="text-gray-900 mb-0">
+                                <svg class="icon icon-xs me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                                {{ book.created_at|date:"d/m/Y à H:i" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6 class="fw-bold text-gray-600">Dernière modification:</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <p class="text-gray-900 mb-0">
+                                <svg class="icon icon-xs me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                                {{ book.updated_at|date:"d/m/Y à H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-0">
+                        <svg class="icon icon-sm me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <strong>Mode administrateur:</strong> Vous pouvez uniquement consulter les livres. Les modifications et suppressions sont réservées aux artistes propriétaires.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'admin_books_list' %}" class="btn btn-gray-800 w-100 mb-2">
+                        <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Retour à la liste
+                    </a>
+                    <div class="text-center text-gray-500 small mt-3">
+                        <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                        Lecture seule
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+
+

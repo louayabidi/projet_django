@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from .models import User
 
 
 class LoginForm(forms.Form):
@@ -40,6 +40,16 @@ class SignUpForm(UserCreationForm):
                 "class": "form-control"
             }
         ))
+    role = forms.ChoiceField(
+        choices=[('artist', 'Artiste'), ('admin', 'Administrateur')],
+        initial='artist',
+        widget=forms.Select(
+            attrs={
+                "class": "form-select"
+            }
+        ),
+        help_text="Choisissez votre rôle"
+    )
     password1 = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
@@ -57,4 +67,4 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'role', 'password1', 'password2')
