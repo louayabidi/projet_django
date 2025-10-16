@@ -14,6 +14,8 @@ __pycache__/
 # venv
 env
 venv
+venv2/
+
 
 # other
 .DS_Store
@@ -28,3 +30,6 @@ staticfiles/*
 apps/static/assets/node_modules
 apps/static/assets/yarn.lock
 apps/static/assets/.temp
+
+
+
