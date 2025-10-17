@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
 from apps.book.models import Book
+from django.shortcuts import render
 
 
 @login_required(login_url="/login/")
@@ -95,3 +96,9 @@ def admin_book_detail(request, id):
     
     html_template = loader.get_template('home/admin-book-detail.html')
     return HttpResponse(html_template.render(context, request))
+
+
+@login_required
+def dashboard_view(request):
+    # ici tu peux ajouter d'autres contextes si nécessaire
+    return render(request, "home/dashboard.html")

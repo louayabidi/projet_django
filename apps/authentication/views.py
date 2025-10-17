@@ -22,7 +22,10 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("/")
+                if hasattr(user, 'role') and user.role == "admin":
+                    return redirect("/dashboard/")  # admin
+                else:
+                    return redirect("/")
             else:
                 msg = 'Invalid credentials'
         else:
@@ -57,3 +60,5 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
+
+

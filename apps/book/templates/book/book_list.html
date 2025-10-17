@@ -5,11 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Livres | Gestion de Bibliothèque</title>
-
+    <title>ArtCollab - Galerie collaborative et générative pour artistes et auteurs</title>
+    <meta name="description" content="Plateforme collaborative de création littéraire et artistique, propulsée par l'IA générative.">
+    <meta name="keywords" content="art, littérature, collaboration, IA générative, création, galerie, gamification" />
+    
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/img/favicon/favicon-32x32.png">
-
+    <link rel="icon" type="image/png" href="/static/assets/img/favicon/homework.png">
     <!-- Bootstrap 5 & Volt CSS -->
     <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
@@ -19,7 +20,8 @@
 </head>
 
 <body class="books-page">
-    
+    {% include 'includes/header.html' %}
+    <br><br>
     <!-- Hero Section -->
     <section class="books-hero">
         <div class="container">

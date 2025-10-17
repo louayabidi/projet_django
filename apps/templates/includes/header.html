@@ -1,0 +1,67 @@
+ <header class="header-global">
+        <nav id="navbar-main" aria-label="Primary navigation" class="navbar navbar-main navbar-expand-lg navbar-theme-primary pt-4 navbar-dark">
+            <div class="container position-relative">
+                <div class="navbar-collapse collapse me-auto" id="navbar_global">
+                    <div class="navbar-collapse-header">
+                        <div class="row">
+                            <div class="col-6 collapse-brand">
+                                <a href="/">
+                                    <img src="/static/assets/img/brand/light.svg" alt="ArtCollab logo">
+                                </a>
+                            </div>
+                            <div class="col-6 collapse-close">
+                                <a href="#navbar_global" class="fas fa-times" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" title="close" aria-label="Toggle navigation"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="navbar-nav navbar-nav-hover align-items-lg-center">
+                        <li class="nav-item me-2">
+                            <a href="index.html" class="nav-link">Acceuil</a>
+                        </li>
+                        <li class="nav-item me-2">
+                            <a href="{% url 'book_list' %}" class="nav-link">Bibliothèque</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center ms-auto">
+                    <a href="{% url 'book_list' %}" 
+                       class="btn btn-outline-white d-inline-flex align-items-center me-md-3 btn-glow">
+                        <svg class="icon icon-xxs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                        </svg>
+                        Explorer la bibliothèque
+                    </a>
+                  <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm d-inline-flex align-items-center">
+                    <svg class="icon icon-xxs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>            
+                    Sign Out
+                  </a>
+              
+                </div>
+            </div>
+        </nav>
+    </header>
+<style>
+/* ✅ Style du header */
+.header-global {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+    background: transparent; /* pour flotter sur l'image */
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #FFD700 !important; /* or couleur dorée au survol */
+}
+
+.btn-light {
+    color: #333;
+    font-weight: 600;
+}
+</style>

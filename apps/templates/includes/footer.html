@@ -1,19 +1,38 @@
-<footer class="bg-white rounded shadow p-5 mb-4 mt-4">
-    <div class="row">
-        <div class="col-12 col-md-4 col-xl-6 mb-4 mb-md-0">
-            <p class="mb-0 text-center text-lg-start">
-                &copy; <a class="text-primary fw-normal" href="https://themesberg.com" target="_blank">Themesberg</a>
-                - Coded by <a href="https://appseed.us" target="_blank">AppSeed</a>.
-            </p>
-        </div>
-        <div class="col-12 col-md-8 col-xl-6 text-center text-lg-start">
-            <!-- List -->
-            <ul class="list-inline list-group-flush list-group-borderless text-md-end mb-0">
-                <li class="list-inline-item px-0 px-sm-2">
-                    <a target="_blank" 
-                       href="https://appseed.us/admin-dashboards/django-dashboard-volt">Django Volt Dashboard</a>
-                </li>
-            </ul>
-        </div>
+<footer class="bg-light rounded shadow-sm py-4 mt-5">
+  <div class="container">
+    <div class="row align-items-center">
+      
+      <!-- Logo & Nom -->
+      <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+        <a href="" class="d-flex align-items-center justify-content-center justify-content-md-start text-decoration-none">
+             
+          <span class="fw-bold text-dark fs-5">ArtCollab</span>
+        </a>
+      </div>
+
+      <!-- Liens -->
+      <div class="col-md-4 text-center mb-3 mb-md-0">
+        <ul class="list-inline mb-0">
+          <li class="list-inline-item"><a href="/about" class="text-muted text-decoration-none">À propos</a></li>
+          <li class="list-inline-item"><a href="/contact" class="text-muted text-decoration-none">Contact</a></li>
+        </ul>
+      </div>
+
+      
+
     </div>
+
+    <!-- Ligne de séparation -->
+    <hr class="my-3">
+
+    <!-- Copyright -->
+    <div class="text-center small text-muted">
+      © <span id="year"></span> ArtCollab — Tous droits réservés.
+    </div>
+  </div>
 </footer>
+
+<script>
+  // Script pour mettre l'année automatiquement
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
