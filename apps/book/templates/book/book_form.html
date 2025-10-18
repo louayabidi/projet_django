@@ -1077,6 +1077,24 @@
                             <span class="error-text">{{ form.synopsis.errors.0 }}</span>
                         {% endif %}
                     </div>
+                    <div class="form-row">
+    <label for="{{ form.file.id_for_label }}" class="form-label">
+        <i class="fas fa-file-upload me-2"></i>
+        Fichier du livre (PDF)
+    </label>
+    <input type="file" name="{{ form.file.name }}" 
+           class="form-control" 
+           id="{{ form.file.id_for_label }}"
+           accept=".pdf"
+           {% if form.file.value %}value="{{ form.file.value }}"{% endif %}>
+    <p class="form-help">
+        <i class="fas fa-info-circle me-1"></i>
+        Téléchargez un fichier PDF (optionnel)
+    </p>
+    {% if form.file.errors %}
+        <span class="error-text">{{ form.file.errors.0 }}</span>
+    {% endif %}
+</div>
 
                     <!-- Buttons -->
                     <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top: 2px solid #e6e7ee;">

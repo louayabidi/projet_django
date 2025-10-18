@@ -8,5 +8,10 @@ urlpatterns = [
     path('<int:id>/delete/', views.book_delete, name='book_delete'),# Supprimer
     path('<int:id>/download/', views.book_download_pdf, name='book_download_pdf'),  # Télécharger PDF
     path('test/', views.test_view, name='book_test'),
+    path('plagiarism-test/', views.plagiarism_test, name='plagiarism_test'),  
+    path('download-examples/', views.download_example_books, name='download_example_books'),  
+
+    path('test/', views.test_view, name='book_test'),
+
 
 ]

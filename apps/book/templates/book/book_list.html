@@ -71,6 +71,26 @@
                 {% endfor %}
             {% endif %}
 
+            {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-custom alert-dismissible fade show" role="alert">
+        <strong>
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'error' %}
+                <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle me-2"></i>
+            {% else %}
+                <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+        </strong>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
             <!-- Books Grid -->
             {% if books %}
             <div class="row">

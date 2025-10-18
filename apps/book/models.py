@@ -1,5 +1,6 @@
 from django.db import models
-from django.conf import settings  # pour accéder au User model
+from django.conf import settings
+from django.core.validators import FileExtensionValidator  # Nouveau
 
 class Book(models.Model):
     title = models.CharField(max_length=200)
@@ -15,6 +16,14 @@ class Book(models.Model):
     
     # Lien avec l'utilisateur (auteur)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='books')
+
+    # Fichier avec validation 
+    file = models.FileField(
+        upload_to='books/', 
+        null=True, 
+        blank=True,
+        validators=[FileExtensionValidator(allowed_extensions=['txt', 'pdf'])]
+    )
 
     def __str__(self):
         return self.title
