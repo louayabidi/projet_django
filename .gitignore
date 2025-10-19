@@ -12,6 +12,7 @@ __pycache__/
 *.log
 
 # venv
+.env
 env
 venv
 venv2/
