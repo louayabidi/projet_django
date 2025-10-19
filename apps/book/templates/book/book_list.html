@@ -142,6 +142,9 @@
                             {% endif %}
                             
                             <div class="book-actions">
+                                <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire le livre">
+                                    <i class="fas fa-pen me-1"></i> Écrire
+                                </a>
                                 <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
                                     <i class="fas fa-file-pdf me-1"></i> PDF
                                 </a>

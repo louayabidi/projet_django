@@ -281,3 +281,19 @@ def plagiarism_test(request):
         "test_book": {"id": test_book.id, "title": test_book.title},
         "similarities": results
     })
+
+# Éditeur de texte pour le livre
+@login_required
+def book_editor(request, id):
+    book = get_object_or_404(Book, id=id)
+    if not request.user.is_staff and book.author != request.user:
+        return HttpResponse("Accès refusé", status=403)
+    
+    if request.method == 'POST':
+        content = request.POST.get('content', '')
+        book.content = content
+        book.save()
+        messages.success(request, "Livre sauvegardé avec succès !")
+        return redirect('book_list')
+    
+    return render(request, 'book/book_editor.html', {'book': book})

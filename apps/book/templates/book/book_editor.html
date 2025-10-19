@@ -1,0 +1,1189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur - {{ book.title }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/img/favicon/favicon-32x32.png">
+
+    <!-- Bootstrap 5 -->
+    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .editor-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+            color: white;
+        }
+        
+        .book-title-display {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .editor-header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .word-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.95rem;
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(79, 172, 254, 0.6);
+        }
+        
+        .save-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .editor-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 30px;
+            gap: 20px;
+            position: relative;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            right: 30px;
+            top: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+        
+        .sidebar-toggle.show {
+            display: flex;
+        }
+        
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .editor-toolbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .ql-toolbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border: none !important;
+            border-radius: 0 !important;
+        }
+        
+        .ql-toolbar.ql-snow .ql-stroke {
+            stroke: white !important;
+        }
+        
+        .ql-toolbar.ql-snow .ql-fill,
+        .ql-toolbar.ql-snow .ql-stroke.ql-fill {
+            fill: white !important;
+        }
+        
+        .ql-toolbar.ql-snow .ql-picker-label {
+            color: white !important;
+        }
+        
+        .ql-toolbar.ql-snow button:hover,
+        .ql-toolbar.ql-snow button.ql-active,
+        .ql-toolbar.ql-snow .ql-picker-label:hover,
+        .ql-toolbar.ql-snow .ql-picker-item:hover,
+        .ql-toolbar.ql-snow .ql-picker-item.ql-selected {
+            color: #00f2fe !important;
+        }
+        
+        .ql-toolbar.ql-snow button:hover .ql-stroke,
+        .ql-toolbar.ql-snow button.ql-active .ql-stroke,
+        .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke,
+        .ql-toolbar.ql-snow .ql-picker-item:hover .ql-stroke,
+        .ql-toolbar.ql-snow .ql-picker-item.ql-selected .ql-stroke {
+            stroke: #00f2fe !important;
+        }
+        
+        .ql-toolbar.ql-snow button:hover .ql-fill,
+        .ql-toolbar.ql-snow button.ql-active .ql-fill,
+        .ql-toolbar.ql-snow .ql-picker-label:hover .ql-fill,
+        .ql-toolbar.ql-snow .ql-picker-item:hover .ql-fill,
+        .ql-toolbar.ql-snow .ql-picker-item.ql-selected .ql-fill {
+            fill: #00f2fe !important;
+        }
+        
+        .ql-container {
+            border: none !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-size: 1rem !important;
+        }
+        
+        .ql-editor {
+            padding: 30px !important;
+            min-height: 400px;
+            color: #2d3142;
+            line-height: 1.8;
+        }
+        
+        .ql-editor.ql-blank::before {
+            color: #a8b3cf;
+            font-style: italic;
+        }
+        
+        .ai-toolbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .ai-toolbar-label {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 10px;
+        }
+        
+        .ai-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        
+        .ai-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ai-btn:active {
+            transform: translateY(0);
+        }
+        
+        .ai-btn.loading {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .ai-suggestions-panel {
+            position: fixed;
+            right: 0;
+            top: 80px;
+            width: 350px;
+            height: calc(100vh - 80px);
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 35;
+            overflow-y: auto;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .ai-suggestions-panel.visible {
+            transform: translateX(0);
+        }
+        
+        .ai-suggestions-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ai-suggestions-close {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-suggestions-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .ai-suggestions-content {
+            padding: 20px;
+        }
+        
+        .ai-suggestion-item {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        
+        .ai-suggestion-title {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .ai-suggestion-content {
+            color: #2d3142;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .ai-suggestion-action {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .ai-suggestion-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-suggestion-btn.apply {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .ai-suggestion-btn.apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-suggestion-btn.dismiss {
+            background: #e0e0e0;
+            color: #2d3142;
+        }
+        
+        .ai-suggestion-btn.dismiss:hover {
+            background: #d0d0d0;
+        }
+        
+        .ai-loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .ai-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(350px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .sidebar-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-close-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-section {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+        
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3142;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-title i {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .book-info {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f0ff 100%);
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            color: #2d3142;
+            margin-top: 3px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .action-btn.secondary {
+            background: #f0f0f0;
+            color: #2d3142;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        @media (max-width: 1200px) {
+            .sidebar {
+                position: fixed;
+                right: 0;
+                top: 80px;
+                width: 300px;
+                height: calc(100vh - 80px);
+                border-radius: 0;
+                z-index: 40;
+                transform: translateX(350px);
+                opacity: 0;
+                pointer-events: none;
+            }
+            
+            .sidebar.visible {
+                transform: translateX(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+            
+            .sidebar-toggle {
+                display: flex !important;
+            }
+            
+            .editor-body {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .editor-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .editor-header-left {
+                width: 100%;
+            }
+            
+            .editor-header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .editor-body {
+                padding: 15px;
+            }
+            
+            .book-title-display {
+                font-size: 1.2rem;
+            }
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+            animation: slideIn 0.5s ease-out;
+            z-index: 1000;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="editor-container">
+        <!-- Header -->
+        <div class="editor-header">
+            <div class="editor-header-left">
+                <a href="{% url 'book_list' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+                <div class="book-title-display">
+                    <i class="fas fa-pen-fancy me-2"></i>{{ book.title }}
+                </div>
+            </div>
+            <div class="editor-header-right">
+                <div class="word-count">
+                    <i class="fas fa-file-alt me-2"></i><span id="wordCount">0</span> mots
+                </div>
+                <button class="save-btn" onclick="saveBook()">
+                    <i class="fas fa-save me-2"></i> Sauvegarder
+                </button>
+            </div>
+        </div>
+        
+        <!-- Body -->
+        <div class="editor-body">
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()" title="Afficher/Masquer le panneau">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <!-- Main Editor -->
+            <div class="editor-main">
+                <!-- AI Toolbar -->
+                <div class="ai-toolbar">
+                    <span class="ai-toolbar-label">🤖 Assistance IA :</span>
+                    <button class="ai-btn" onclick="aiCorrectGrammar()" title="Corriger la grammaire">
+                        <i class="fas fa-spell-check"></i> Grammaire
+                    </button>
+                    <button class="ai-btn" onclick="aiGenerateSynopsis()" title="Générer un synopsis">
+                        <i class="fas fa-align-left"></i> Synopsis
+                    </button>
+                    <button class="ai-btn" onclick="aiAnalyzeSentiment()" title="Analyser le sentiment">
+                        <i class="fas fa-heart"></i> Sentiment
+                    </button>
+                    <button class="ai-btn" onclick="aiExtractKeywords()" title="Extraire les mots-clés">
+                        <i class="fas fa-tags"></i> Mots-clés
+                    </button>
+                    <button class="ai-btn" onclick="aiDetectGenre()" title="Détecter le genre">
+                        <i class="fas fa-book"></i> Genre
+                    </button>
+                    <button class="ai-btn" onclick="aiAnalyzeReadability()" title="Analyser la lisibilité">
+                        <i class="fas fa-chart-line"></i> Lisibilité
+                    </button>
+                </div>
+                
+                <form id="editorForm" method="POST">
+                    {% csrf_token %}
+                    <div id="editor"></div>
+                    <textarea id="content" name="content" style="display: none;"></textarea>
+                </form>
+            </div>
+            
+            <!-- AI Suggestions Panel -->
+            <div class="ai-suggestions-panel" id="aiSuggestionsPanel">
+                <div class="ai-suggestions-header">
+                    <span>💡 Suggestions IA</span>
+                    <button class="ai-suggestions-close" onclick="closeAISuggestions()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="ai-suggestions-content" id="aiSuggestionsContent">
+                    <p style="color: #a8b3cf; text-align: center; padding: 20px;">Cliquez sur un bouton IA pour voir les suggestions</p>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <!-- Close Button -->
+                <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <!-- Book Info -->
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-info-circle"></i> Informations
+                    </div>
+                    <div class="book-info">
+                        <div class="info-item">
+                            <span class="info-label">Titre</span>
+                            <div class="info-value">{{ book.title }}</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Genre</span>
+                            <div class="info-value">{{ book.genre }}</div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Statut</span>
+                            <div class="info-value">
+                                {% if book.status == 'en_cours' %}
+                                    <span style="color: #ff9800;"><i class="fas fa-spinner me-1"></i>En cours</span>
+                                {% elif book.status == 'termine' %}
+                                    <span style="color: #4caf50;"><i class="fas fa-check me-1"></i>Terminé</span>
+                                {% else %}
+                                    <span style="color: #9e9e9e;"><i class="fas fa-archive me-1"></i>Archivé</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-chart-bar"></i> Statistiques
+                    </div>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="charCount">0</div>
+                            <div class="stat-label">Caractères</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="paragraphCount">0</div>
+                            <div class="stat-label">Paragraphes</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-cog"></i> Actions
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="exportText()">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                        <button class="action-btn secondary" onclick="clearEditor()">
+                            <i class="fas fa-trash"></i> Effacer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quill Editor -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    
+    <script>
+        // Initialize Quill Editor
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Commencez à écrire votre livre ici...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'font': [] }],
+                    [{ 'align': [] }],
+                    ['clean']
+                ]
+            }
+        });
+        
+        // Load existing content
+        const existingContent = `{{ book.content|escapejs }}`;
+        if (existingContent) {
+            quill.root.innerHTML = existingContent;
+        }
+        
+        // Update word count and stats
+        function updateStats() {
+            const text = quill.getText();
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const chars = text.length;
+            const paragraphs = text.split('\n').filter(p => p.trim().length > 0).length;
+            
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars;
+            document.getElementById('paragraphCount').textContent = paragraphs;
+        }
+        
+        quill.on('text-change', updateStats);
+        updateStats();
+        
+        // Save book
+        function saveBook() {
+            const content = quill.root.innerHTML;
+            document.getElementById('content').value = content;
+            
+            const form = document.getElementById('editorForm');
+            const formData = new FormData(form);
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showSuccessMessage('Livre sauvegardé avec succès !');
+                } else {
+                    alert('Erreur lors de la sauvegarde');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la sauvegarde');
+            });
+        }
+        
+        // Export text
+        function exportText() {
+            const text = quill.getText();
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', '{{ book.title }}.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+        
+        // Clear editor
+        function clearEditor() {
+            if (confirm('Êtes-vous sûr de vouloir effacer tout le contenu ?')) {
+                quill.setContents([]);
+                updateStats();
+            }
+        }
+        
+        // Show success message
+        function showSuccessMessage(message) {
+            const msg = document.createElement('div');
+            msg.className = 'success-message';
+            msg.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + message;
+            document.body.appendChild(msg);
+            
+            setTimeout(() => {
+                msg.remove();
+            }, 3000);
+        }
+        
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            const content = quill.root.innerHTML;
+            if (content.trim().length > 0) {
+                document.getElementById('content').value = content;
+                const form = document.getElementById('editorForm');
+                const formData = new FormData(form);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                }).catch(error => console.log('Auto-save failed:', error));
+            }
+        }, 30000);
+        
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            sidebar.classList.toggle('visible');
+            sidebar.classList.toggle('hidden');
+            
+            // Change icon direction
+            if (sidebar.classList.contains('visible')) {
+                toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            }
+        }
+        
+        // Initialize sidebar state
+        window.addEventListener('load', () => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            // Check if screen is small
+            if (window.innerWidth <= 1200) {
+                sidebar.classList.add('hidden');
+                toggleBtn.classList.add('show');
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth > 1200) {
+                sidebar.classList.remove('visible', 'hidden');
+                toggleBtn.classList.remove('show');
+            } else {
+                toggleBtn.classList.add('show');
+                if (!sidebar.classList.contains('visible')) {
+                    sidebar.classList.add('hidden');
+                }
+            }
+        });
+        
+        // AI Functions
+        function getEditorText() {
+            return quill.getText();
+        }
+        
+        function showAISuggestions(content) {
+            const panel = document.getElementById('aiSuggestionsPanel');
+            panel.classList.add('visible');
+            document.getElementById('aiSuggestionsContent').innerHTML = content;
+        }
+        
+        function closeAISuggestions() {
+            const panel = document.getElementById('aiSuggestionsPanel');
+            panel.classList.remove('visible');
+        }
+        
+        function callAIAPI(endpoint, text) {
+            return fetch(`/books/api/ai/${endpoint}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ text: text })
+            }).then(response => response.json());
+        }
+        
+        function aiCorrectGrammar() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Correction en cours...</p></div>');
+            
+            callAIAPI('correct-grammar', text).then(result => {
+                if (result.success) {
+                    let html = '';
+                    if (result.corrections.length > 0) {
+                        result.corrections.forEach((correction, index) => {
+                            html += `
+                                <div class="ai-suggestion-item">
+                                    <div class="ai-suggestion-title">Correction ${index + 1}</div>
+                                    <div class="ai-suggestion-content">
+                                        <strong>Avant :</strong> ${correction.original}<br>
+                                        <strong>Après :</strong> ${correction.corrected}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = '<div class="ai-suggestion-item"><div class="ai-suggestion-content">✅ Aucune erreur détectée !</div></div>';
+                    }
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function aiGenerateSynopsis() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Génération du synopsis...</p></div>');
+            
+            callAIAPI('generate-synopsis', text).then(result => {
+                if (result.success) {
+                    const html = `
+                        <div class="ai-suggestion-item">
+                            <div class="ai-suggestion-title">Synopsis généré</div>
+                            <div class="ai-suggestion-content">${result.synopsis}</div>
+                            <div class="ai-suggestion-action">
+                                <button class="ai-suggestion-btn apply" onclick="copySynopsis('${result.synopsis.replace(/'/g, "\\'")}')">Copier</button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function aiAnalyzeSentiment() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Analyse en cours...</p></div>');
+            
+            callAIAPI('analyze-sentiment', text).then(result => {
+                if (result.success) {
+                    const html = `
+                        <div class="ai-suggestion-item">
+                            <div class="ai-suggestion-title">Analyse du sentiment</div>
+                            <div class="ai-suggestion-content">
+                                <strong>Sentiment :</strong> ${result.sentiment}<br>
+                                <strong>Confiance :</strong> ${result.confidence}%
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function aiExtractKeywords() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Extraction en cours...</p></div>');
+            
+            callAIAPI('extract-keywords', text).then(result => {
+                if (result.success) {
+                    let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Mots-clés détectés</div><div class="ai-suggestion-content">';
+                    result.keywords.forEach(kw => {
+                        html += `<span style="display: inline-block; background: #667eea; color: white; padding: 5px 10px; border-radius: 15px; margin: 5px 5px 5px 0; font-size: 0.85rem;">${kw.word} (${kw.frequency})</span>`;
+                    });
+                    html += '</div></div>';
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function aiDetectGenre() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Détection en cours...</p></div>');
+            
+            callAIAPI('detect-genre', text).then(result => {
+                if (result.success) {
+                    let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Genres détectés</div><div class="ai-suggestion-content">';
+                    result.genres.forEach(genre => {
+                        html += `<div style="margin: 10px 0;"><strong>${genre.genre}</strong> : ${genre.confidence}%</div>`;
+                    });
+                    html += '</div></div>';
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function aiAnalyzeReadability() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Analyse en cours...</p></div>');
+            
+            callAIAPI('analyze-readability', text).then(result => {
+                if (result.success) {
+                    const html = `
+                        <div class="ai-suggestion-item">
+                            <div class="ai-suggestion-title">Analyse de lisibilité</div>
+                            <div class="ai-suggestion-content">
+                                <strong>Lisibilité :</strong> ${result.readability}<br>
+                                <strong>Niveau :</strong> ${result.level}<br>
+                                <strong>Mots :</strong> ${result.total_words}<br>
+                                <strong>Phrases :</strong> ${result.total_sentences}<br>
+                                <strong>Longueur moyenne des phrases :</strong> ${result.avg_sentence_length} mots
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            }).catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+        
+        function copySynopsis(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Synopsis copié !');
+            });
+        }
+    </script>
+</body>
+
+</html>
