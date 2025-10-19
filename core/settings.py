@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 import os
 from decouple import config
 from pathlib import Path
-
+from decouple import config
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +16,7 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', config('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = config('SERVER', default='127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -45,6 +45,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 TEMPLATES = [
     {
