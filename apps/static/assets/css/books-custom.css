@@ -382,6 +382,27 @@
     color: #fff;
 }
 
+.btn-write {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-write:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    color: #fff;
+}
+
+.btn-write i {
+    animation: writePulse 2s ease-in-out infinite;
+}
+
+@keyframes writePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;

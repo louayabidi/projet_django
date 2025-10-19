@@ -24,6 +24,8 @@ class Book(models.Model):
         blank=True,
         validators=[FileExtensionValidator(allowed_extensions=['txt', 'pdf'])]
     )
+    
+    content = models.TextField(blank=True, default='')
 
     def __str__(self):
         return self.title
