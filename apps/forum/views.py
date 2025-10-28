@@ -5,10 +5,16 @@ from django.contrib import messages
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
 from .toxicity_detector import toxicity_detector
+from .summarizer import discussion_summarizer  
 
 def post_list(request):
     posts = Post.objects.all()
     total_comments = Comment.objects.count()
+    
+    # Ajouter les résumés aux posts longs
+    for post in posts:
+        post.has_summary = discussion_summarizer.should_summarize(post.content)
+    
     return render(request, 'forum/post_list.html', {
         'posts': posts,
         'total_comments': total_comments
@@ -18,34 +24,38 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     comments = post.comments.all()
     
+    # Générer le résumé pour l'affichage
+    summary = None
+    if discussion_summarizer.should_summarize(post.content):
+        summary = discussion_summarizer.summarize_text(post.content)
+    
     if request.method == 'POST' and request.user.is_authenticated:
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             content = comment_form.cleaned_data['content']
             
-            # Vérifier la toxicité du commentaire
+            # Vérifier la toxicité
             toxicity_score = toxicity_detector.analyze_toxicity(content)
             
             if toxicity_score >= 0.7:
                 messages.error(
                     request, 
-                    f"Votre commentaire a été détecté comme inapproprié (score: {toxicity_score:.2f}). "
-                    "Veuillez reformuler votre message de manière plus respectueuse."
+                    f"Commentaire détecté comme inapproprié (score: {toxicity_score:.2f})."
                 )
                 return render(request, 'forum/post_detail.html', {
                     'post': post,
                     'comments': comments,
                     'comment_form': comment_form,
-                    'toxicity_score': toxicity_score
+                    'toxicity_score': toxicity_score,
+                    'summary': summary
                 })
             else:
-                # Commentaire acceptable
                 comment = comment_form.save(commit=False)
                 comment.post = post
                 comment.author = request.user
                 comment.save()
                 
-                messages.success(request, "Votre commentaire a été publié!")
+                messages.success(request, "Commentaire publié!")
                 return redirect('forum:post_detail', pk=post.pk)
     else:
         comment_form = CommentForm()
@@ -53,7 +63,8 @@ def post_detail(request, pk):
     return render(request, 'forum/post_detail.html', {
         'post': post,
         'comments': comments,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'summary': summary
     })
 
 @login_required
