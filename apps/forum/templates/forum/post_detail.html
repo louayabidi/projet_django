@@ -1,0 +1,126 @@
+{% extends 'forum/base.html' %}
+
+{% block content %}
+<!-- Navigation -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'forum:post_list' %}" class="neuro-btn btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Retour au Forum
+        </a>
+    </div>
+</div>
+
+<!-- Discussion Principale -->
+<div class="neuro-card mb-4">
+    <div class="row">
+        <div class="col-md-1 text-center">
+            <div class="user-avatar-neon mb-3">
+                {{ post.author.username|first|upper }}
+            </div>
+            <small class="text-gradient">{{ post.author.username }}</small>
+        </div>
+        <div class="col-md-11">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="text-light mb-2">{{ post.title }}</h2>
+                    {% if post.tags %}
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {% for tag in post.get_tags_list %}
+                        <span class="tag-neon">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% if user == post.author %}
+                <div class="btn-group">
+                    <a href="{% url 'forum:post_edit' post.pk %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-edit me-1"></i>
+                    </a>
+                    <a href="{% url 'forum:post_delete' post.pk %}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash me-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="post-content mb-4">
+                <p class="text-light" style="font-size: 1.1rem; line-height: 1.8;">{{ post.content|linebreaks }}</p>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center text-sm text-secondary">
+                <div class="d-flex gap-4">
+                    <span>
+                        <i class="fas fa-clock me-1"></i>{{ post.created_at|date:"d M Y à H:i" }}
+                    </span>
+                    {% if post.updated_at != post.created_at %}
+                    <span class="text-gradient">
+                        <i class="fas fa-edit me-1"></i>Modifié {{ post.updated_at|timesince }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Commentaires Section -->
+<div class="neuro-card">
+    <h4 class="text-light mb-4">
+        <i class="fas fa-comments me-2 text-gradient"></i>
+        Discussions ({{ comments.count }})
+    </h4>
+
+    {% for comment in comments %}
+    <div class="neuro-card glass-effect mb-3">
+        <div class="row">
+            <div class="col-md-1 text-center">
+                <div class="user-avatar-neon">
+                    {{ comment.author.username|first|upper }}
+                </div>
+            </div>
+            <div class="col-md-11">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <strong class="text-light">{{ comment.author.username }}</strong>
+                    <small class="text-secondary">{{ comment.created_at|timesince }}</small>
+                </div>
+                <p class="text-light mb-0" style="line-height: 1.7;">{{ comment.content|linebreaks }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-4">
+        <i class="fas fa-comment-slash fa-3x text-secondary mb-3"></i>
+        <p class="text-secondary">Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
+    </div>
+    {% endfor %}
+
+    <!-- Formulaire de Commentaire -->
+    {% if user.is_authenticated %}
+    <div class="neuro-card glass-effect mt-4">
+        <h5 class="text-light mb-3">
+            <i class="fas fa-reply me-2 text-gradient"></i>Ajouter Votre Commentaire
+        </h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="content" class="form-control glass-effect" 
+                          style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;"
+                          rows="5" placeholder="Partagez vos réflexions..." required></textarea>
+            </div>
+            <button type="submit" class="neuro-btn">
+                <i class="fas fa-paper-plane me-2"></i>Publier le Commentaire
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="neuro-card glass-effect text-center">
+        <i class="fas fa-lock fa-2x text-gradient mb-3"></i>
+        <h5 class="text-light">Connectez-vous pour participer</h5>
+        <p class="text-secondary mb-3">Rejoignez la conversation littéraire</p>
+        <a href="{% url 'login' %}" class="neuro-btn">
+            <i class="fas fa-sign-in-alt me-2"></i>Se Connecter
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+<!-- forum/templates/forum/post_confirm_delete.html -->
+{% extends 'forum/base.html' %}
+
+{% block title %}Supprimer la discussion - Book Gallery Forum{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card post-card">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h2>Confirmer la suppression</h2>
+                </div>
+                
+                <p class="lead">Êtes-vous sûr de vouloir supprimer la discussion :</p>
+                <h4 class="text-danger">"{{ post.title }}"</h4>
+                <p class="text-muted">Cette action est irréversible.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <a href="{% url 'forum:post_detail' post.pk %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Supprimer définitivement
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

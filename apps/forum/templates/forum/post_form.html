@@ -1,0 +1,49 @@
+{% extends 'forum/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="forum-card">
+            <div class="forum-card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>{{ title }}
+                </h3>
+            </div>
+            
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Titre de la discussion</label>
+                        <input type="text" name="title" class="form-control form-control-lg" 
+                               value="{{ form.title.value|default:'' }}" placeholder="Donnez un titre accrocheur..." required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Contenu</label>
+                        <textarea name="content" class="form-control" rows="8" 
+                                  placeholder="Partagez vos idées, posez vos questions..." required>{{ form.content.value|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tags</label>
+                        <input type="text" name="tags" class="form-control" 
+                               value="{{ form.tags.value|default:'' }}" placeholder="littérature, art, collaboration, etc.">
+                        <div class="form-text">Séparez les tags par des virgules</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'forum:post_list' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-new-discussion">
+                            <i class="fas fa-save me-1"></i>{{ title }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
