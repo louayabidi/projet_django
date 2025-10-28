@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Supprimer le post - ArtCollab</title>
+    <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
+</head>
+<body>
+    {% include 'includes/header.html' %}
+<br><br><br>
+
+    <div class="container mt-5">
+        <h2>Supprimer le post : {{ post.title }}</h2>
+        <p>Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+            <a href="{% url 'collaborations_list' %}" class="btn btn-secondary ms-2">Annuler</a>
+        </form>
+    </div>
+</body>
+</html>

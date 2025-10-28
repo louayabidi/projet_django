@@ -97,70 +97,84 @@
             {% if books %}
             <div class="row">
                 {% for book in books %}
-                <div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
-                    <div class="book-card">
-                        <div class="book-card-header">
-                            <h3 class="book-card-title">
-                                <i class="fas fa-book me-2"></i>
-                                {{ book.title }}
-                            </h3>
-                        </div>
-                        <div class="book-card-body">
-                            <div class="book-meta">
-                                <i class="fas fa-tag"></i>
-                                <strong class="me-1">Genre:</strong> {{ book.genre }}
-                            </div>
-                            
-                            <div class="book-meta">
-                                <i class="fas fa-info-circle"></i>
-                                <strong class="me-1">Statut:</strong>
-                                <span class="book-status 
-                                    {% if book.status == 'en_cours' %}status-en-cours
-                                    {% elif book.status == 'termine' %}status-termine
-                                    {% else %}status-archive{% endif %}">
-                                    {% if book.status == 'en_cours' %}
-                                        <i class="fas fa-spinner me-1"></i> En cours
-                                    {% elif book.status == 'termine' %}
-                                        <i class="fas fa-check me-1"></i> Terminé
-                                    {% else %}
-                                        <i class="fas fa-archive me-1"></i> Archivé
-                                    {% endif %}
-                                </span>
-                            </div>
-                            
-                            <div class="book-meta">
-                                <i class="fas fa-calendar-alt"></i>
-                                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
-                            </div>
-                            
-                            {% if book.synopsis %}
-                            <div class="book-meta mt-3">
-                                <i class="fas fa-align-left"></i>
-                                <strong class="me-1">Synopsis:</strong>
-                            </div>
-                            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
-                                {{ book.synopsis|truncatewords:20 }}
-                            </p>
-                            {% endif %}
-                            
-                            <div class="book-actions">
-                                <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire le livre">
-                                    <i class="fas fa-pen me-1"></i> Écrire
-                                </a>
-                                <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
-                                    <i class="fas fa-file-pdf me-1"></i> PDF
-                                </a>
-                                <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
-                                    <i class="fas fa-edit me-1"></i> Modifier
-                                </a>
-                                <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete">
-                                    <i class="fas fa-trash-alt me-1"></i> Supprimer
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+<div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
+    <div class="book-card">
+        <div class="book-card-header">
+            <h3 class="book-card-title">
+                <i class="fas fa-book me-2"></i>
+                {{ book.title }}
+            </h3>
+        </div>
+        <div class="book-card-body">
+            <div class="book-meta">
+                <i class="fas fa-tag"></i>
+                <strong class="me-1">Genre:</strong> {{ book.genre }}
+            </div>
+            
+            <div class="book-meta">
+                <i class="fas fa-info-circle"></i>
+                <strong class="me-1">Statut:</strong>
+                <span class="book-status 
+                    {% if book.status == 'en_cours' %}status-en-cours
+                    {% elif book.status == 'termine' %}status-termine
+                    {% else %}status-archive{% endif %}">
+                    {% if book.status == 'en_cours' %}
+                        <i class="fas fa-spinner me-1"></i> En cours
+                    {% elif book.status == 'termine' %}
+                        <i class="fas fa-check me-1"></i> Terminé
+                    {% else %}
+                        <i class="fas fa-archive me-1"></i> Archivé
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="book-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
+            </div>
+
+            <!-- Auteur et rôle -->
+            <div class="book-meta mt-2">
+                <i class="fas fa-user"></i>
+                <strong>Auteur:</strong> {{ book.author.username }}
+                {% if user == book.author %}
+                    <span class="badge bg-primary ms-2">Auteur</span>
+                {% elif user in book.collaborators.all %}
+                    <span class="badge bg-success ms-2">Collaborateur</span>
+                {% endif %}
+            </div>
+
+            {% if book.synopsis %}
+            <div class="book-meta mt-3">
+                <i class="fas fa-align-left"></i>
+                <strong class="me-1">Synopsis:</strong>
+            </div>
+            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                {{ book.synopsis|truncatewords:20 }}
+            </p>
+            {% endif %}
+            
+            <div class="book-actions">
+                <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire le livre">
+                    <i class="fas fa-pen me-1"></i> Écrire
+                </a>
+                <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
+                    <i class="fas fa-file-pdf me-1"></i> PDF
+                </a>
+                {% if user == book.author %}
+                <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                </a>
+                <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete">
+                    <i class="fas fa-trash-alt me-1"></i> Supprimer
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
             </div>
             {% else %}
             <!-- Empty State -->
