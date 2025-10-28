@@ -114,3 +114,55 @@ def full_analysis(request):
         return JsonResponse(result)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# === GENERATION ENDPOINTS (Hugging Face) ===
+@login_required
+@require_http_methods(["POST"])
+def suggest_continue(request):
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '')
+        params = data.get('params', {})
+        if not text:
+            return JsonResponse({'success': False, 'error': 'Texte vide'}, status=400)
+        result = ai_service.suggest_continue(
+            text,
+            max_new_tokens=int(params.get('max_new_tokens', 80)),
+            num_return_sequences=int(params.get('num_return_sequences', 3)),
+            temperature=float(params.get('temperature', 0.9)),
+            top_p=float(params.get('top_p', 0.95)),
+        )
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def rewrite_text(request):
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '')
+        style = data.get('style', 'simple')
+        if not text:
+            return JsonResponse({'success': False, 'error': 'Texte vide'}, status=400)
+        result = ai_service.rewrite_text(text, style=style, max_new_tokens=int(data.get('max_new_tokens', 120)))
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def suggest_titles(request):
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '')
+        num_titles = int(data.get('num_titles', 5))
+        if not text:
+            return JsonResponse({'success': False, 'error': 'Texte vide'}, status=400)
+        result = ai_service.suggest_titles(text, num_titles=num_titles)
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

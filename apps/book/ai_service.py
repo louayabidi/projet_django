@@ -1,12 +1,16 @@
 import re
 from textblob import TextBlob
 import warnings
+from typing import Optional, List
 
 warnings.filterwarnings('ignore')
 
 class AIService:
     def __init__(self):
         self.nlp = None
+        self.generator = None
+        self.generation_model_name = 'dbddv01/gpt2-french-small'
+        self.fallback_model_name = 'distilgpt2'
         try:
             import spacy
             try:
@@ -18,6 +22,21 @@ class AIService:
                 self.nlp = spacy.load('en_core_web_sm')
         except Exception:
             self.nlp = None
+
+    def _ensure_generator(self):
+        if self.generator is not None:
+            return
+        try:
+            from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(self.generation_model_name)
+                model = AutoModelForCausalLM.from_pretrained(self.generation_model_name)
+            except Exception:
+                tokenizer = AutoTokenizer.from_pretrained(self.fallback_model_name)
+                model = AutoModelForCausalLM.from_pretrained(self.fallback_model_name)
+            self.generator = pipeline('text-generation', model=model, tokenizer=tokenizer)
+        except Exception:
+            self.generator = None
     
     def correct_grammar(self, text):
         try:
@@ -268,6 +287,133 @@ class AIService:
             'genre': self.detect_genre(text),
             'readability': self.analyze_readability(text)
         }
+
+    def suggest_continue(self, text: str, max_new_tokens: int = 80, num_return_sequences: int = 3, temperature: float = 0.9, top_p: float = 0.95):
+        try:
+            self._ensure_generator()
+            if self.generator is None:
+                return {'success': False, 'error': "Impossible de charger le modèle de génération (transformers)", 'suggestions': []}
+            prompt = (text.strip()[-600:] if len(text) > 600 else text).strip()
+            if not prompt:
+                return {'success': False, 'error': 'Texte vide', 'suggestions': []}
+            outputs = self.generator(
+                prompt,
+                max_new_tokens=max_new_tokens,
+                num_return_sequences=num_return_sequences,
+                do_sample=True,
+                temperature=temperature,
+                top_p=top_p,
+                eos_token_id=None
+            )
+            suggestions = []
+            for out in outputs:
+                gen = out.get('generated_text', '')
+                cont = gen[len(prompt):].strip() if gen.startswith(prompt) else gen.strip()
+                suggestions.append(cont)
+            return {'success': True, 'suggestions': suggestions}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'suggestions': []}
+
+    def rewrite_text(self, text: str, style: str = 'simple', max_new_tokens: int = 120):
+        try:
+            self._ensure_generator()
+            if self.generator is None:
+                return {'success': False, 'error': "Impossible de charger le modèle de génération", 'rewrites': []}
+            style_map = {
+                'simple': 'Réécris ce texte en français plus simple et clair, en conservant le sens:',
+                'formel': 'Réécris ce texte en français plus formel et professionnel:',
+                'concis': 'Réécris ce texte en français de manière plus concise:',
+            }
+            instruction = style_map.get(style, style_map['simple'])
+            prompt = f"{instruction}\n\nTexte:\n{text.strip()}\n\nRéécriture: "
+            outputs = self.generator(
+                prompt,
+                max_new_tokens=max_new_tokens,
+                num_return_sequences=3,
+                do_sample=True,
+                temperature=0.8,
+                top_p=0.95
+            )
+            rewrites = []
+            for out in outputs:
+                gen = out.get('generated_text', '')
+                after = gen.split('Réécriture:', 1)
+                candidate = after[1] if len(after) > 1 else gen
+                rewrites.append(candidate.strip())
+            return {'success': True, 'style': style, 'rewrites': rewrites}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'rewrites': []}
+
+    def suggest_titles(self, text: str, num_titles: int = 5):
+        try:
+            self._ensure_generator()
+            if self.generator is None:
+                return {'success': False, 'error': "Impossible de charger le modèle de génération", 'titles': []}
+            snippet = text.strip()[:800]
+            prompt = (
+                "Propose des titres courts et accrocheurs en français pour le texte suivant.\n"
+                "Contraintes: chaque titre entre 5 et 8 mots, pas de numérotation.\n"
+                "Format: liste avec un tiret en début de ligne.\n\n"
+                f"Texte:\n{snippet}\n\nExemples:\n"
+                "- Les Ombres de la Cité Perdue\n"
+                "- Chroniques d'un Destin Brisé\n"
+                "- Secrets au Bord de la Rivière\n\n"
+                "Titres:\n- "
+            )
+            outputs = self.generator(
+                prompt,
+                max_new_tokens=96,
+                num_return_sequences=3,
+                do_sample=True,
+                temperature=0.7,
+                top_p=0.9,
+                repetition_penalty=1.2
+            )
+            raw = "\n".join(o.get('generated_text', '') for o in outputs)
+            candidates = []
+            for l in raw.splitlines():
+                s = l.strip()
+                if not s.startswith('-'):
+                    continue
+                t = s.lstrip('-').strip()
+                t = re.sub(r"[^A-Za-zÀ-ÖØ-öø-ÿ'\-\s]", " ", t)
+                t = re.sub(r"\s+", " ", t).strip()
+                words = t.split()
+                if len(words) < 5 or len(words) > 8:
+                    continue
+                if t.endswith(('.', ',', ';', ':', '!', '?')):
+                    t = t[:-1].strip()
+                t = t[:1].upper() + t[1:]
+                candidates.append(t)
+            seen = set()
+            titles = []
+            for t in candidates:
+                k = t.lower()
+                if k in seen:
+                    continue
+                seen.add(k)
+                titles.append(t)
+                if len(titles) >= num_titles:
+                    break
+            if len(titles) < num_titles:
+                kw = self.extract_keywords(text).get('keywords', [])
+                base = [k.get('word') for k in kw][:6]
+                patterns = [
+                    "Chroniques de {} et {}",
+                    "Les Secrets de {}",
+                    "Au Cœur de {}",
+                    "L'Ombre de {}",
+                    "Mystère sur {}"
+                ]
+                i = 0
+                while len(titles) < num_titles and i < len(patterns):
+                    if len(base) >= 2:
+                        t = patterns[i].format(base[0].capitalize(), base[1].capitalize()) if '{}' in patterns[i] and patterns[i].count('{}') == 2 else patterns[i].format(base[0].capitalize())
+                        titles.append(t)
+                    i += 1
+            return {'success': True, 'titles': titles[:num_titles]}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'titles': []}
 
 
 ai_service = AIService()

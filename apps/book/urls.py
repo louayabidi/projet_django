@@ -19,4 +19,9 @@ urlpatterns = [
     path('api/ai/detect-genre/', ai_views.detect_genre, name='ai_detect_genre'),
     path('api/ai/analyze-readability/', ai_views.analyze_readability, name='ai_analyze_readability'),
     path('api/ai/full-analysis/', ai_views.full_analysis, name='ai_full_analysis'),
+
+    # Generation (Hugging Face)
+    path('api/ai/suggest-continue/', ai_views.suggest_continue, name='ai_suggest_continue'),
+    path('api/ai/rewrite-text/', ai_views.rewrite_text, name='ai_rewrite_text'),
+    path('api/ai/suggest-titles/', ai_views.suggest_titles, name='ai_suggest_titles'),
 ]

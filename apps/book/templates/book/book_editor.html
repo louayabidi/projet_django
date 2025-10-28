@@ -713,6 +713,15 @@
                     <button class="ai-btn" onclick="aiAnalyzeReadability()" title="Analyser la lisibilité">
                         <i class="fas fa-chart-line"></i> Lisibilité
                     </button>
+                    <button class="ai-btn" onclick="aiSuggestContinue()" title="Suggérer la suite du texte">
+                        <i class="fas fa-forward"></i> Continuer
+                    </button>
+                    <button class="ai-btn" onclick="aiRewrite('simple')" title="Réécrire en plus simple">
+                        <i class="fas fa-wand-magic-sparkles"></i> Réécrire
+                    </button>
+                    <button class="ai-btn" onclick="aiSuggestTitles()" title="Proposer des titres">
+                        <i class="fas fa-heading"></i> Titres
+                    </button>
                 </div>
                 
                 <form id="editorForm" method="POST">
@@ -1181,6 +1190,104 @@
         function copySynopsis(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('Synopsis copié !');
+            });
+        }
+
+        // === Generation (Hugging Face) ===
+        function aiSuggestContinue() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Génération en cours...</p></div>');
+            fetch('/books/api/ai/suggest-continue/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ text: text, params: { max_new_tokens: 80, num_return_sequences: 3, temperature: 0.9, top_p: 0.95 } })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Suggestions de continuation</div><div class="ai-suggestion-content">';
+                    result.suggestions.forEach((sug, i) => {
+                        html += `<div style="margin-bottom:12px;"><strong>Option ${i+1}:</strong><br>${sug}</div>`;
+                    });
+                    html += '</div></div>';
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+
+        function aiRewrite(style) {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Réécriture en cours...</p></div>');
+            fetch('/books/api/ai/rewrite-text/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ text: text, style: style, max_new_tokens: 120 })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Réécritures proposées</div><div class="ai-suggestion-content">';
+                    (result.rewrites || []).forEach((rw, i) => {
+                        html += `<div style="margin-bottom:12px;"><strong>Option ${i+1}:</strong><br>${rw}</div>`;
+                    });
+                    html += '</div></div>';
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
+            });
+        }
+
+        function aiSuggestTitles() {
+            const text = getEditorText();
+            if (!text.trim()) {
+                alert('Veuillez écrire du texte d\'abord');
+                return;
+            }
+            showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Génération des titres...</p></div>');
+            fetch('/books/api/ai/suggest-titles/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ text: text, num_titles: 5 })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Titres proposés</div><div class="ai-suggestion-content"><ul>';
+                    (result.titles || []).forEach(t => { html += `<li>${t}</li>`; });
+                    html += '</ul></div></div>';
+                    document.getElementById('aiSuggestionsContent').innerHTML = html;
+                } else {
+                    document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ ${result.error}</div></div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('aiSuggestionsContent').innerHTML = `<div class="ai-suggestion-item"><div class="ai-suggestion-content">❌ Erreur : ${error.message}</div></div>`;
             });
         }
     </script>
