@@ -15,7 +15,6 @@ from datetime import datetime
 import requests
 from django.core.files.base import ContentFile
 from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, ngram_similarity, read_book_file
-from django.db.models import Q
 
 # Test route
 @login_required
@@ -29,11 +28,10 @@ def book_list(request):
     Admin: voit tous les livres
     Artiste: voit seulement ses livres
     """
-    if request.user.is_staff:
+    if request.user.is_staff:  # admin
         books = Book.objects.all()
-    else:
-        # Inclut les livres dont l'utilisateur est collaborateur
-        books = Book.objects.filter(Q(author=request.user) | Q(collaborators=request.user)).distinct()
+    else:  # artiste
+        books = Book.objects.filter(author=request.user)
     return render(request, 'book/book_list.html', {'books': books})
 
 # Ajouter un livre
@@ -288,15 +286,14 @@ def plagiarism_test(request):
 @login_required
 def book_editor(request, id):
     book = get_object_or_404(Book, id=id)
-    # Autorisation: auteur ou collaborateur
-    if not request.user.is_staff and request.user != book.author and request.user not in book.collaborators.all():
+    if not request.user.is_staff and book.author != request.user:
         return HttpResponse("Accès refusé", status=403)
     
     if request.method == 'POST':
-        book.content = request.POST.get('content', '')
+        content = request.POST.get('content', '')
+        book.content = content
         book.save()
         messages.success(request, "Livre sauvegardé avec succès !")
         return redirect('book_list')
     
     return render(request, 'book/book_editor.html', {'book': book})
-    

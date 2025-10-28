@@ -17,12 +17,6 @@ class Book(models.Model):
     # Lien avec l'utilisateur (auteur)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='books')
 
-    collaborators = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, 
-        related_name='collaborative_books', 
-        blank=True
-    )
-
     # Fichier avec validation 
     file = models.FileField(
         upload_to='books/', 

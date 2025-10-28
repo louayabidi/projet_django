@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.authentication',
     'apps.book',
-    'apps.collaboration',
+    'apps.forum',
 ]
 
 MIDDLEWARE = [

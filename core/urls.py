@@ -7,9 +7,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("apps.authentication.urls")),
-    path('books/', include('apps.book.urls')),
-    path('collaboration/', include('apps.collaboration.urls')),
+    path('books/', include('apps.book.urls')),          # Front-end classique
     path("", include("apps.home.urls")),
+    path('forum/', include('apps.forum.urls')),
 ]
 
 if settings.DEBUG:
