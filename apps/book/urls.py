@@ -20,3 +20,5 @@ urlpatterns = [
     path('api/ai/analyze-readability/', ai_views.analyze_readability, name='ai_analyze_readability'),
     path('api/ai/full-analysis/', ai_views.full_analysis, name='ai_full_analysis'),
 ]
+
+

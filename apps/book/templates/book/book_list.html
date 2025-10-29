@@ -5,35 +5,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArtCollab - Galerie collaborative et générative pour artistes et auteurs</title>
-    <meta name="description" content="Plateforme collaborative de création littéraire et artistique, propulsée par l'IA générative.">
-    <meta name="keywords" content="art, littérature, collaboration, IA générative, création, galerie, gamification" />
-    
+    <title>ArtCollab - Ma Bibliothèque</title>
+    <meta name="description" content="Gérez vos livres, collaborez avec l'IA, et construisez vos œuvres littéraires.">
+    <meta name="keywords" content="bibliothèque, livres, écriture, IA, collaboration, création">
+
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/static/assets/img/favicon/homework.png">
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
+
     <!-- Bootstrap 5 & Volt CSS -->
-    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+    <link type="text/css" href="{% static 'assets/css/volt.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .books-hero {
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-icon-hero {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .btn-add-book {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add-book:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(79, 172, 254, 0.6);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border-left: 5px solid #667eea;
+        }
+
+        .stats-card h3 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0;
+            color: #667eea;
+        }
+
+        .stats-card p {
+            margin: 8px 0 0;
+            color: #6c757d;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-card-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 18px 20px;
+        }
+
+        .book-card-title {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .book-card-body {
+            padding: 20px;
+        }
+
+        .book-meta {
+ Hendrik            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .book-meta i {
+            color: #667eea;
+            width: 18px;
+        }
+
+        .book-status {
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-en-cours { background: #fff3cd; color: #856404; }
+        .status-termine  { background: #d4edda; color: #155724; }
+        .status-archive  { background: #e2e3e5; color: #383d41; }
+
+        .book-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .btn-write    { background: var(--success-gradient); color: white; }
+        .btn-download { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; }
+        .btn-edit     { background: linear-gradient(135deg, #feca57, #ff9ff3); color: #333; }
+        .btn-delete   { background: linear-gradient(135deg, #a55eea, #6c5ce7); color: white; }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .alert-custom {
+            border: none;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .books-hero { padding: 60px 0 40px; }
+            .book-icon-hero { font-size: 3rem; }
+            .book-actions { flex-direction: column; }
+            .btn-action { width: 100%; }
+            .stats-card { margin-top: 20px; }
+        }
+    </style>
 </head>
 
 <body class="books-page">
     {% include 'includes/header.html' %}
-    <br><br>
+
     <!-- Hero Section -->
     <section class="books-hero">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-8">
+                <div class="col-lg-8 text-center text-lg-start">
                     <div class="book-icon-hero mb-4 glow">
                         <i class="fas fa-book-open"></i>
                     </div>
                     <h1 class="mb-3">
                         Ma Bibliothèque <span class="gradient-text">Personnelle</span>
                     </h1>
-                    <p class="lead">
+                    <p class="lead mb-4">
                         Gérez votre collection de livres avec style et simplicité
                     </p>
                     <a href="{% url 'book_create' %}" class="btn btn-add-book">
@@ -53,7 +268,7 @@
     <!-- Books Container -->
     <section class="books-container">
         <div class="container">
-            
+
             <!-- Messages -->
             {% if messages %}
                 {% for message in messages %}
@@ -63,6 +278,8 @@
                             <i class="fas fa-check-circle me-2"></i>
                         {% elif message.tags == 'error' %}
                             <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
                         {% else %}
                             <i class="fas fa-info-circle me-2"></i>
                         {% endif %}
@@ -73,138 +290,117 @@
                 {% endfor %}
             {% endif %}
 
-            {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-custom alert-dismissible fade show" role="alert">
-        <strong>
-            {% if message.tags == 'success' %}
-                <i class="fas fa-check-circle me-2"></i>
-            {% elif message.tags == 'error' %}
-                <i class="fas fa-exclamation-circle me-2"></i>
-            {% elif message.tags == 'warning' %}
-                <i class="fas fa-exclamation-triangle me-2"></i>
-            {% else %}
-                <i class="fas fa-info-circle me-2"></i>
-            {% endif %}
-        </strong>
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-{% endif %}
-
             <!-- Books Grid -->
             {% if books %}
-            <div class="row">
-                {% for book in books %}
-                <div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
-                    <div class="book-card">
-                        <div class="book-card-header">
-                            <h3 class="book-card-title">
-                                <i class="fas fa-book me-2"></i>
-                                {{ book.title }}
-                            </h3>
-                        </div>
-                        <div class="book-card-body">
-                            <div class="book-meta">
-                                <i class="fas fa-tag"></i>
-                                <strong class="me-1">Genre:</strong> {{ book.genre }}
-                            </div>
-                            
-                            <div class="book-meta">
-                                <i class="fas fa-info-circle"></i>
-                                <strong class="me-1">Statut:</strong>
-                                <span class="book-status 
-                                    {% if book.status == 'en_cours' %}status-en-cours
-                                    {% elif book.status == 'termine' %}status-termine
-                                    {% else %}status-archive{% endif %}">
-                                    {% if book.status == 'en_cours' %}
-                                        <i class="fas fa-spinner me-1"></i> En cours
-                                    {% elif book.status == 'termine' %}
-                                        <i class="fas fa-check me-1"></i> Terminé
-                                    {% else %}
-                                        <i class="fas fa-archive me-1"></i> Archivé
+                <div class="row">
+                    {% for book in books %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="book-card">
+                                <div class="book-card-header">
+                                    <h3 class="book-card-title">
+                                        <i class="fas fa-book me-2"></i>
+                                        {{ book.title }}
+                                    </h3>
+                                </div>
+                                <div class="book-card-body">
+                                    <div class="book-meta">
+                                        <i class="fas fa-tag"></i>
+                                        <strong>Genre:</strong> {{ book.genre|default:"Non spécifié" }}
+                                    </div>
+                                    
+                                    <div class="book-meta">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Statut:</strong>
+                                        <span class="book-status 
+                                            {% if book.status == 'en_cours' %}status-en-cours
+                                            {% elif book.status == 'termine' %}status-termine
+                                            {% else %}status-archive{% endif %}">
+                                            {% if book.status == 'en_cours' %}
+                                                <i class="fas fa-spinner me-1"></i> En cours
+                                            {% elif book.status == 'termine' %}
+                                                <i class="fas fa-check me-1"></i> Terminé
+                                            {% else %}
+                                                <i class="fas fa-archive me-1"></i> Archivé
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="book-meta">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <strong>Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
+                                    </div>
+                                    
+                                    {% if book.synopsis %}
+                                    <div class="book-meta mt-3">
+                                        <i class="fas fa-align-left"></i>
+                                        <strong>Synopsis:</strong>
+                                    </div>
+                                    <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis; line-height: 1.5;">
+                                        {{ book.synopsis|truncatewords:20 }}
+                                    </p>
                                     {% endif %}
-                                </span>
-                            </div>
-                            
-                            <div class="book-meta">
-                                <i class="fas fa-calendar-alt"></i>
-                                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
-                            </div>
-                            
-                            {% if book.synopsis %}
-                            <div class="book-meta mt-3">
-                                <i class="fas fa-align-left"></i>
-                                <strong class="me-1">Synopsis:</strong>
-                            </div>
-                            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
-                                {{ book.synopsis|truncatewords:20 }}
-                            </p>
-                            {% endif %}
-                            
-                            <div class="book-actions">
-                                <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire le livre">
-                                    <i class="fas fa-pen me-1"></i> Écrire
-                                </a>
-                                <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
-                                    <i class="fas fa-file-pdf me-1"></i> PDF
-                                </a>
-                                <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
-                                    <i class="fas fa-edit me-1"></i> Modifier
-                                </a>
-                                <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete">
-                                    <i class="fas fa-trash-alt me-1"></i> Supprimer
-                                </a>
+                                    
+                                    <div class="book-actions">
+                                        <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire">
+                                            <i class="fas fa-pen me-1"></i> Écrire
+                                        </a>
+                                        <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="PDF">
+                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                        </a>
+                                        <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
+                                            <i class="fas fa-edit me-1"></i> Modifier
+                                        </a>
+                                        <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete" 
+                                           onclick="return confirm('Supprimer ce livre ? Cette action est irréversible.')">
+                                            <i class="fas fa-trash-alt me-1"></i> Supprimer
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
             {% else %}
-            <!-- Empty State -->
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-book-reader"></i>
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-book-reader"></i>
+                    </div>
+                    <h3>Aucun livre dans votre bibliothèque</h3>
+                    <p>Commencez à construire votre collection dès maintenant !</p>
+                    <a href="{% url 'book_create' %}" class="btn btn-add-book">
+                        <i class="fas fa-plus me-2"></i> Ajouter votre premier livre
+                    </a>
                 </div>
-                <h3>Aucun livre dans votre bibliothèque</h3>
-                <p>Commencez à construire votre collection dès maintenant !</p>
-                <a href="{% url 'book_create' %}" class="btn btn-add-book">
-                    <i class="fas fa-plus me-2"></i> Ajouter votre premier livre
-                </a>
-            </div>
             {% endif %}
-            
+
         </div>
     </section>
 
     <!-- Bootstrap JS -->
-    <script src="/static/assets/vendor/@popperjs/core/dist/umd/popper.min.js"></script>
-    <script src="/static/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
-    
-    <!-- Custom Animation Script -->
+    <script src="{% static 'assets/vendor/@popperjs/core/dist/umd/popper.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+    <!-- Animation on Scroll -->
     <script>
-        // Add fade-in animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.book-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                setTimeout(() => observer.observe(card), index * 100);
             });
-        }, observerOptions);
-
-        document.querySelectorAll('.book-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(card);
         });
     </script>
 </body>
