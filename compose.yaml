@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    container_name: testdjango-db-1
+    environment:
+      POSTGRES_DB: django
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+    container_name: testdjango-web-1
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8001:8000"
+    environment:
+      DB_NAME: django
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+volumes:
+  db-data:
