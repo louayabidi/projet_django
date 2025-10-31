@@ -31,14 +31,12 @@
                         <i class="fas fa-book-open"></i>
                     </div>
                     <h1 class="mb-3">
-                        Ma Bibliothèque <span class="gradient-text">Personnelle</span>
+                        Mes <span class="gradient-text">Favoris</span>
                     </h1>
                     <p class="lead">
                         Gérez votre collection de livres avec style et simplicité
                     </p>
-                    <a href="{% url 'book_create' %}" class="btn btn-add-book">
-                        <i class="fas fa-plus me-2"></i> Ajouter un nouveau livre
-                    </a>
+                   
                 </div>
                 <div class="col-lg-4 mt-4 mt-lg-0">
                     <div class="stats-card">
@@ -95,15 +93,26 @@
 
             <!-- Books Grid -->
             {% if books %}
-            <div class="row">
+         <div class="row">
                 {% for book in books %}
                 <div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
                     <div class="book-card">
-                        <div class="book-card-header">
-                            <h3 class="book-card-title">
+                        <div class="book-card-header d-flex justify-content-between align-items-center">
+                            <h3 class="book-card-title mb-0 flex-grow-1">
                                 <i class="fas fa-book me-2"></i>
                                 {{ book.title }}
                             </h3>
+                            <div class="d-flex align-items-center gap-2 ms-2">
+                                <i class="fas fa-shopping-cart text-primary" 
+                                style="cursor:pointer; font-size: 1.1rem; padding: 8px;" 
+                                title="Ajouter au panier"
+                                onclick="addToCart({{ book.id }})"></i>
+
+                                <i id="heart-{{ book.id }}" class="fas fa-heart text-danger"
+                                style="cursor:pointer; font-size: 1.1rem; padding: 8px;"
+                                title="Ajouter aux favoris"
+                                onclick="removeFavorite({{ book.id }})"></i>
+                            </div>
                         </div>
                         <div class="book-card-body">
                             <div class="book-meta">
@@ -131,7 +140,7 @@
                                 {% if book.price == 0 %}
 
                                 <i class="fas fa-gift"></i>
-                                <strong class="me-1">Prix:</strong> <span class="text-success   ">Gratuit</span>
+                                <strong class="me-1">Prix:</strong> <span class="text-success">Gratuit</span>
                                 {% else %}
                                 <i class="fas fa-euro-sign"></i>
                                 <strong class="me-1">Prix:</strong> {{ book.price|floatformat:2 }} €
@@ -180,9 +189,6 @@
                 </div>
                 <h3>Aucun livre dans votre bibliothèque</h3>
                 <p>Commencez à construire votre collection dès maintenant !</p>
-                <a href="{% url 'book_create' %}" class="btn btn-add-book">
-                    <i class="fas fa-plus me-2"></i> Ajouter votre premier livre
-                </a>
             </div>
             {% endif %}
             
@@ -216,7 +222,56 @@
             card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(card);
         });
+        const removeFavorite = (bookId)=>
+        {
+            //refresh the page just after deletion
+
+            if (confirm("Êtes-vous sûr de vouloir retirer ce livre de vos favoris ?")) {
+
+            fetch(`/books/favorites/remove/${bookId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+
+                    document.getElementById(`book-${bookId}`).remove();
+                } else {
+                    console.error('Failed to remove favorite:', response);
+                }
+            }).catch(error => {
+                console.error('Error removing favorite:', error);
+            });
+        }
+    }
+    const addToCart = (bookId) => {
+        fetch(`/cart/add/${bookId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})  // corps nécessaire même vide pour POST
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Livre ajouté au panier !');
+            } else {
+                alert('Erreur lors de l\'ajout au panier.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la requête.');
+        });
+        };
+        
+
+
     </script>
+
 </body>
 
 </html>

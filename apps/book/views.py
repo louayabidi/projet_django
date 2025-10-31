@@ -15,7 +15,8 @@ from datetime import datetime
 import requests
 from django.core.files.base import ContentFile
 from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, ngram_similarity, read_book_file
-
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 # Test route
 @login_required
 def test_view(request):
@@ -297,3 +298,53 @@ def book_editor(request, id):
         return redirect('book_list')
     
     return render(request, 'book/book_editor.html', {'book': book})
+@login_required
+def getAllFinishedBooks(request):
+    finished_books = Book.objects.filter(status__in=['termine', 'archive'])
+    data = [
+        {
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.get_full_name() or book.author.username,
+            'genre': book.genre,
+            'created_at': book.created_at.strftime('%Y-%m-%d %H:%M'),
+            'updated_at': book.updated_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for book in finished_books
+    ]
+    return render(request, 'book/all_books.html', {'books': finished_books})
+@login_required
+@require_http_methods(["POST"])
+def add_to_favorites(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    book.favorites.add(request.user)
+    return JsonResponse({"success": True})
+@login_required
+@require_http_methods(["GET"])
+def view_favorites(request):
+    favorite_books = Book.objects.filter(favorites=request.user)
+    data = [
+        {
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.get_full_name() or book.author.username,
+            'genre': book.genre,
+            'created_at': book.created_at.strftime('%Y-%m-%d %H:%M'),
+            'updated_at': book.updated_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for book in favorite_books
+    ]
+    return render(request, 'book/favorite_book.html', {'books': favorite_books})
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def remove_from_favorites(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    book.favorites.remove(request.user)
+    return JsonResponse({"success": True})
+@login_required
+@require_http_methods(["GET"])
+def check_is_favorite(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    is_favorite = book.favorites.filter(id=request.user.id).exists()
+    return JsonResponse({"is_favorite": is_favorite})

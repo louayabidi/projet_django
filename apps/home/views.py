@@ -10,10 +10,12 @@ from django.template import loader
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
-from apps.book.models import Book
 from django.shortcuts import render
-
-
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+from apps.book.models import Book
+from django.contrib.auth import get_user_model
+User = get_user_model()
 @login_required(login_url="/login/")
 def index(request):
     context = {'segment': 'index'}
@@ -102,3 +104,32 @@ def admin_book_detail(request, id):
 def dashboard_view(request):
     # ici tu peux ajouter d'autres contextes si nécessaire
     return render(request, "home/dashboard.html")
+@login_required
+def search(request):
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse({'results': []})
+
+    results = []
+
+    # Search Books
+    books = Book.objects.filter(title__icontains=query)[:5]
+    for book in books:
+        if book.status == 'termine' or book.status == 'archive':  # Only include completed or archived books
+            results.append({
+                'type': 'Book',
+                'name': book.title,
+                'url': book.get_absolute_url() if hasattr(book, 'get_absolute_url') else '#',
+                
+            })
+
+    # Search Users (custom user model)
+    users = User.objects.filter(username__icontains=query)[:5]
+    for user in users:
+        results.append({
+            'type': 'User',
+            'name': user.username,
+            'url': f'/user/{user.id}/',  # Adjust to your user detail page
+        })
+
+    return JsonResponse({'results': results})

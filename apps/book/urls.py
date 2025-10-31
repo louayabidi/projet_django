@@ -19,4 +19,9 @@ urlpatterns = [
     path('api/ai/detect-genre/', ai_views.detect_genre, name='ai_detect_genre'),
     path('api/ai/analyze-readability/', ai_views.analyze_readability, name='ai_analyze_readability'),
     path('api/ai/full-analysis/', ai_views.full_analysis, name='ai_full_analysis'),
+    path('library/', views.getAllFinishedBooks, name='all_books'),
+    path('favorites/add/<int:book_id>/', views.add_to_favorites, name='add_to_favorites'),
+    path('favorites/remove/<int:book_id>/', views.remove_from_favorites, name='remove_favorites'),
+    path('favorites/', views.view_favorites, name='view_favorites'),
+    path('favorites/check/<int:book_id>/', views.check_is_favorite, name='check_favorite_status'),
 ]

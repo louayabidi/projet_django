@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtCollab - Mon Panier</title>
+    <meta name="description" content="Gérez votre panier de livres sur ArtCollab.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/static/assets/img/favicon/homework.png">
+    <!-- Bootstrap 5 & Volt CSS -->
+    <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Styles correctifs pour les boutons cliquables */
+        .btn {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto !important;
+        }
+        
+        .book-card {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .book-actions {
+            position: relative;
+            z-index: 20;
+        }
+        
+        /* Assurer que les liens sont cliquables */
+        a {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+        
+        /* Styles pour les boutons désactivés si le panier est vide */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="books-page">
+    {% include 'includes/header.html' %}
+    <br><br>
+
+    <!-- Hero Section -->
+    <section class="books-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="book-icon-hero mb-4 glow">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h1 class="mb-3">
+                        Mon <span class="gradient-text">Panier</span>
+                    </h1>
+                    <p class="lead">
+                        Gérez les livres que vous souhaitez acheter ou lire
+                    </p>
+                    
+                    {% if cart_items %}
+                    <a href="{% url 'checkout' %}" class="btn btn-success">
+                        <i class="fas fa-credit-card me-2"></i> Passer au paiement
+                    </a>
+                    <a href="{% url 'clear_cart' %}" class="btn btn-danger ms-2" 
+                       onclick="return confirm('Êtes-vous sûr de vouloir vider votre panier ?')">
+                        <i class="fas fa-trash me-2"></i> Vider le panier
+                    </a>
+                    {% else %}
+                    <button class="btn btn-success" disabled>
+                        <i class="fas fa-credit-card me-2"></i> Passer au paiement
+                    </button>
+                    <button class="btn btn-danger ms-2" disabled>
+                        <i class="fas fa-trash me-2"></i> Vider le panier
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="stats-card">
+                        <h3>{{ cart_items|length }}</h3>
+                        <p>Article{{ cart_items|length|pluralize }}</p>
+                        <h4>Total: {{ total|floatformat:2 }} €</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Items -->
+    <section class="books-container">
+        <div class="container">
+            
+            {% if cart_items %}
+            <div class="row">
+                {% for item in cart_items %}
+                <div class="col-md-6 col-lg-4 mb-4" style="--animation-order: {{ forloop.counter }};">
+                    <div class="book-card">
+                        <div class="book-card-header">
+                            <h3 class="book-card-title">
+                                <i class="fas fa-book me-2"></i> {{ item.book.title }}
+                            </h3>
+                        </div>
+                        <div class="book-card-body">
+                            <div class="book-meta">
+                                <i class="fas fa-tag"></i>
+                                <strong>Genre:</strong> {{ item.book.genre }}
+                            </div>
+                            <div class="book-meta">
+                                <i class="fas fa-euro-sign"></i>
+                                <strong>Prix:</strong> 
+                                {% if item.book.price == 0 %}
+                                    <span class="text-success">Gratuit</span>
+                                {% else %}
+                                    {{ item.book.price|floatformat:2 }} €
+                                {% endif %}
+                            </div>
+                            <div class="book-meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <strong>Créé le:</strong> {{ item.book.created_at|date:"d/m/Y" }}
+                            </div>
+                            <div class="book-actions mt-3">
+                                <a href="{% url 'remove_from_cart' item.id %}" 
+                                   class="btn btn-action btn-delete"
+                                   onclick="return confirm('Retirer ce livre du panier ?')">
+                                    <i class="fas fa-trash-alt me-1"></i> Retirer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Votre panier est vide</h3>
+                <p>Ajoutez des livres pour commencer votre collection !</p>
+                <a href="{% url 'book_list' %}" class="btn btn-primary">
+                    <i class="fas fa-book me-2"></i> Parcourir les livres
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="/static/assets/vendor/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="/static/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // Script pour s'assurer que tous les liens sont cliquables
+        document.addEventListener('DOMContentLoaded', function() {
+            // Forcer les styles pour tous les boutons et liens
+            const buttons = document.querySelectorAll('a.btn, button');
+            buttons.forEach(button => {
+                button.style.position = 'relative';
+                button.style.zIndex = '100';
+                button.style.pointerEvents = 'auto';
+            });
+            
+            // Ajouter une confirmation pour les actions critiques
+            const deleteButtons = document.querySelectorAll('.btn-delete, .btn-danger');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Êtes-vous sûr de vouloir effectuer cette action ?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
