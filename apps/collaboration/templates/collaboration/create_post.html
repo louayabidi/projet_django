@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un post - ArtCollab</title>
+    <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles existants, inchangés */
+        .creation-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { font-weight: 600; color: #333; margin-bottom: 0.5rem; display: block; }
+        .form-control, .form-select, .form-textarea {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .form-control:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        .file-upload-area:hover { border-color: #667eea; background: #f0f2ff; }
+        .file-upload-area.dragover { border-color: #667eea; background: #e8ecff; }
+        .file-icon { font-size: 3rem; color: #6c757d; margin-bottom: 1rem; }
+        .image-preview { max-width: 200px; max-height: 200px; border-radius: 10px; margin-top: 1rem; display: none; }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .character-count { text-align: right; font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem; }
+        .character-count.warning { color: #ffc107; }
+        .character-count.danger { color: #dc3545; }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+    <br><br><br>
+    <section class="creation-hero">
+        <div class="container text-center">
+            <div class="mb-4">
+                <i class="fas fa-handshake fa-3x mb-3"></i>
+                <h1 class="display-5 fw-bold">Nouvelle Collaboration</h1>
+                <p class="lead">Partagez votre projet et trouvez des artistes passionnés</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <div class="form-container">
+            <form method="post" enctype="multipart/form-data" id="collaborationForm">
+                {% csrf_token %}
+
+                <!-- Livre (en cours uniquement) -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-book me-2"></i>Choisissez un livre
+                    </label>
+                    {{ form.book }}
+                    {% if form.book.errors %}
+                        <div class="text-danger mt-1">{{ form.book.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Titre -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-heading me-2"></i>Titre de votre collaboration
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger mt-1">{{ form.title.errors }}</div>
+                    {% endif %}
+                    <div class="character-count" id="titleCount">0/100 caractères</div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-align-left me-2"></i>Description détaillée
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="text-danger mt-1">{{ form.content.errors }}</div>
+                    {% endif %}
+                    <div class="character-count" id="contentCount">0/2000 caractères</div>
+                </div>
+
+                <!-- Image -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-image me-2"></i>Image illustrative (optionnelle)
+                    </label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div class="file-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h5>Glissez-déposez votre image ici</h5>
+                        <p class="text-muted">ou cliquez pour parcourir vos fichiers</p>
+                        <p class="small text-muted">Formats supportés: JPG, PNG, GIF - Max: 5MB</p>
+                        {{ form.image }}
+                    </div>
+                    <div class="text-center">
+                        <img id="imagePreview" class="image-preview" alt="Aperçu de l'image">
+                    </div>
+                    {% if form.image.errors %}
+                        <div class="text-danger mt-2">{{ form.image.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Catégorie -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-tag me-2"></i>Catégorie (optionnelle)
+                    </label>
+                    <select class="form-select" name="category">
+                        <option value="">Sélectionnez une catégorie</option>
+                        <option value="peinture">Peinture</option>
+                        <option value="dessin">Dessin</option>
+                        <option value="sculpture">Sculpture</option>
+                        <option value="photographie">Photographie</option>
+                        <option value="digital">Art Digital</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+
+                <!-- Niveau requis -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-chart-line me-2"></i>Niveau requis (optionnel)
+                    </label>
+                    <select class="form-select" name="skill_level">
+                        <option value="">Tous niveaux</option>
+                        <option value="debutant">Débutant</option>
+                        <option value="intermediaire">Intermédiaire</option>
+                        <option value="avance">Avancé</option>
+                        <option value="professionnel">Professionnel</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{% url 'collaborations_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour aux collaborations
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i> Publier la collaboration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts pour compteurs et upload d'image -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Titre et contenu : compteur de caractères
+            function setupCounter(inputId, counterId, max, warning, danger) {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(counterId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        const count = this.value.length;
+                        counter.textContent = `${count}/${max} caractères`;
+                        if (count > danger) counter.className = 'character-count danger';
+                        else if (count > warning) counter.className = 'character-count warning';
+                        else counter.className = 'character-count';
+                    });
+                    input.dispatchEvent(new Event('input'));
+                }
+            }
+            setupCounter('{{ form.title.id_for_label }}', 'titleCount', 100, 80, 100);
+            setupCounter('{{ form.content.id_for_label }}', 'contentCount', 2000, 1500, 1800);
+
+            // Upload image
+            const fileInput = document.getElementById('{{ form.image.id_for_label }}');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const imagePreview = document.getElementById('imagePreview');
+            if (fileInput && fileUploadArea) {
+                fileUploadArea.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+                ['dragenter','dragover','dragleave','drop'].forEach(eName =>
+                    fileUploadArea.addEventListener(eName, e => { e.preventDefault(); e.stopPropagation(); }, false));
+                ['dragenter','dragover'].forEach(eName => fileUploadArea.addEventListener(eName, () => fileUploadArea.classList.add('dragover')));
+                ['dragleave','drop'].forEach(eName => fileUploadArea.addEventListener(eName, () => fileUploadArea.classList.remove('dragover')));
+                fileUploadArea.addEventListener('drop', e => {
+                    fileInput.files = e.dataTransfer.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                });
+            }
+        });
+    </script>
+</body>
+</html>

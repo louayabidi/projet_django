@@ -1,18 +1,18 @@
-import re
-from difflib import SequenceMatcher
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from difflib import SequenceMatcher
 from sentence_transformers import SentenceTransformer, util
 import nltk
+
 from django.core.files.storage import default_storage
-from django.utils.html import strip_tags
 from nltk.util import ngrams
-import PyPDF2
-import os
+import pdfplumber 
+import PyPDF2 
+
 
 nltk.download('punkt')
 
-# Embeddings model (BERT léger)
+# Modèle pour embeddings (BERT léger, gratuit)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # --- N-grams ---
@@ -46,57 +46,19 @@ def embedding_similarity(text1, text2):
 
 # --- Lecture du fichier (TXT ou PDF) ---
 def read_book_file(book):
-    """Lit le contenu d'un fichier .txt ou .pdf"""
-    if book.file:
+    try:
+        if not book.file:
+            return book.synopsis or ""  # Fallback to synopsis if no file
         file_path = default_storage.path(book.file.name)
         if file_path.endswith('.pdf'):
-            try:
-                with open(file_path, 'rb') as f:
-                    reader = PyPDF2.PdfReader(f)
-                    text = ""
-                    for page in reader.pages:
-                        page_text = page.extract_text()
-                        if page_text:
-                            text += page_text
-                    return text
-            except Exception as e:
-                raise Exception(f"Erreur lecture PDF : {e}")
+            with open(file_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text() or ""
+                return text
         else:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except Exception as e:
-                raise Exception(f"Erreur lecture TXT : {e}")
-    return ""
-
-def read_book_content(book):
-    """Lit le contenu édité (HTML → texte nettoyé)"""
-    if not book.content:
-        return ""
-    text = strip_tags(book.content)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-def read_book_text(book):
-    """Lit le contenu nettoyé : fichier .txt OU book.content"""
-    # 1. Fichier .txt (priorité)
-    if book.file and book.file.name:
-        try:
-            file_path = default_storage.path(book.file.name)
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    return clean_text(f.read())
-        except Exception as e:
-            print(f"Erreur lecture fichier {book.file.name}: {e}")
-
-    # 2. Fallback : contenu HTML
-    return clean_text(book.content)
-
-def clean_text(text):
-    """Nettoie le texte : supprime HTML, espaces multiples, ponctuation bruitée"""
-    if not text:
-        return ""
-    text = strip_tags(text)  # Supprime <p>, <b>, etc.
-    text = re.sub(r'\s+', ' ', text)  # Espace unique
-    text = re.sub(r'[^\w\s.,!?;:\-\'"]', '', text)  # Garde ponctuation utile
-    return text.strip().lower()
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return file.read()
+    except Exception as e:
+        raise Exception(f"Erreur lors de la lecture du fichier : {str(e)}")
