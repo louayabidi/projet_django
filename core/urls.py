@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include("apps.authentication.urls")),
     path('books/', include('apps.book.urls')),          # Front-end classique
     path("", include("apps.home.urls")),
+    path('collaboration/', include('apps.collaboration.urls')),
     path('forum/', include('apps.forum.urls')),
 ]
 

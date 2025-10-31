@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Supprimer la réponse - ArtCollab</title>
+    <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
+</head>
+<body class="books-page">
+{% include 'includes/header.html' %}
+<br><br>
+
+<section class="books-hero text-center">
+    <div class="container">
+        <h1>Supprimer la réponse</h1>
+        <p class="lead text-danger">Cette action est irréversible.</p>
+    </div>
+</section>
+
+<section class="container mt-5 text-center">
+    <div class="card p-4 shadow-sm rounded">
+        <p>Êtes-vous sûr de vouloir supprimer votre réponse à <strong>{{ response.post.title }}</strong> ?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-1"></i> Supprimer définitivement
+            </button>
+            <a href="{% url 'responses_list' response.post.id %}" class="btn btn-secondary ms-2">
+                Annuler
+            </a>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>
