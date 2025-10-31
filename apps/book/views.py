@@ -326,6 +326,8 @@ def book_editor(request, id):
 
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
+        title = request.POST.get('title', book.title)
+        book.title = title
         
         # 1. Mettre à jour le contenu HTML
         book.content = content
