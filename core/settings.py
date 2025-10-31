@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'apps.book',
     'apps.forum',
+    'apps.badge',
 ]
 
 MIDDLEWARE = [

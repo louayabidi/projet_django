@@ -1,0 +1,148 @@
+{% extends 'badge/badge_base.html' %}
+
+{% block title %}Mes Badges - ArtCollab{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1>🏆 Mes Badges</h1>
+    <p class="lead text-white mt-3">Suivez votre progression et débloquez de nouveaux badges!</p>
+</div>
+
+<div class="container mt-4">
+    <!-- Barre de progression -->
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto">
+            <div class="badge-card">
+                <h3 class="mb-3">📊 Progression Globale</h3>
+                <h2 class="text-primary">{{ unlocked_count }} / {{ total_badges }}</h2>
+                <p class="text-muted mb-3">badges débloqués</p>
+                <div class="progress" style="height: 30px; border-radius: 15px;">
+                    <div class="progress-bar bg-gradient-primary" role="progressbar" 
+                         style="width: {% if total_badges > 0 %}{% widthratio unlocked_count total_badges 100 %}{% else %}0{% endif %}%" 
+                         aria-valuenow="{{ unlocked_count }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="{{ total_badges }}">
+                        {% if total_badges > 0 %}
+                            {% widthratio unlocked_count total_badges 100 %}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badges Débloqués -->
+    <div class="mb-5">
+        <h2 class="text-white text-center mb-4">
+            <i class="fas fa-unlock text-success"></i> Badges Débloqués
+        </h2>
+        <div class="row">
+            {% for user_badge in unlocked_badges %}
+            <div class="col-md-4 mb-4">
+                <div class="badge-card">
+                    {% if user_badge.badge.image %}
+                        <img src="{{ user_badge.badge.image.url }}" class="badge-image" alt="{{ user_badge.badge.nom }}">
+                    {% else %}
+                        <div class="badge-image d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 2.5rem;">
+                            🏆
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="text-success mb-2">
+                        <i class="fas fa-check-circle"></i> {{ user_badge.badge.nom }}
+                    </h5>
+                    <p class="text-muted mb-3">{{ user_badge.badge.description }}</p>
+                    
+                    <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted">
+                            <i class="far fa-calendar-check"></i> 
+                            Débloqué le {{ user_badge.unlocked_at|date:"d/m/Y à H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="badge-card text-center">
+                    <i class="fas fa-trophy" style="font-size: 4rem; color: #ccc; margin-bottom: 20px;"></i>
+                    <h4 class="text-muted">Aucun badge débloqué pour le moment</h4>
+                    <p class="text-muted">Continuez à utiliser la plateforme pour débloquer vos premiers badges!</p>
+                    <a href="{% url 'book_list' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-book"></i> Commencer à écrire
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Badges Verrouillés -->
+    <div class="mb-5">
+        <h2 class="text-white text-center mb-4">
+            <i class="fas fa-lock text-warning"></i> Badges à Débloquer
+        </h2>
+        <div class="row">
+            {% for user_badge in locked_badges %}
+            <div class="col-md-4 mb-4">
+                <div class="badge-card" style="opacity: 0.7; position: relative;">
+                    <!-- Badge verrouillé overlay -->
+                    <div style="position: absolute; top: 15px; right: 15px; background: #dc3545; color: white; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem;">
+                        <i class="fas fa-lock"></i> Verrouillé
+                    </div>
+                    
+                    {% if user_badge.badge.image %}
+                        <img src="{{ user_badge.badge.image.url }}" 
+                             class="badge-image" 
+                             alt="{{ user_badge.badge.nom }}" 
+                             style="filter: grayscale(100%) brightness(0.8);">
+                    {% else %}
+                        <div class="badge-image d-flex align-items-center justify-content-center" 
+                             style="background: #6c757d; font-size: 2.5rem; filter: grayscale(100%);">
+                            🔒
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="text-muted mb-2">
+                        <i class="fas fa-lock"></i> {{ user_badge.badge.nom }}
+                    </h5>
+                    <p class="text-muted mb-3">{{ user_badge.badge.description }}</p>
+                    
+                    <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Condition:</strong><br>
+                            {% if user_badge.badge.badge_type == 'plagiat' %}
+                                Terminer un livre sans plagiat
+                            {% elif user_badge.badge.badge_type == 'first_book' %}
+                                Terminer votre premier livre
+                            {% elif user_badge.badge.badge_type == 'completed_books' %}
+                                Terminer {{ user_badge.badge.condition_value }} livre(s)
+                            {% else %}
+                                Conditions spéciales requises
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="badge-card text-center">
+                    <i class="fas fa-award" style="font-size: 4rem; color: #ffd700; margin-bottom: 20px;"></i>
+                    <h3 class="text-success">🎉 Félicitations Champion! 🎉</h3>
+                    <p class="lead">Vous avez débloqué tous les badges disponibles!</p>
+                    <p class="text-muted">Revenez plus tard pour découvrir de nouveaux défis.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>
+{% endblock %}

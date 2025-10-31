@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/ai/detect-genre/', ai_views.detect_genre, name='ai_detect_genre'),
     path('api/ai/analyze-readability/', ai_views.analyze_readability, name='ai_analyze_readability'),
     path('api/ai/full-analysis/', ai_views.full_analysis, name='ai_full_analysis'),
-]
+    
+path('api/ai/check-web-plagiarism/', ai_views.check_web_plagiarism_view, name='check_web_plagiarism'),]
 
 

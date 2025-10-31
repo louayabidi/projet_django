@@ -13,6 +13,8 @@ class Book(models.Model):
     ])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    plagiat_web = models.BooleanField(default=False)
+    plagiat_local = models.BooleanField(default=False)
     
     # Lien avec l'utilisateur (auteur)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='books')
