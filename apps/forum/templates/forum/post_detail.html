@@ -95,6 +95,76 @@
     </div>
 </div>
 
+<!-- Réponses IA Intelligentes -->
+{% if ai_responses and user.is_authenticated %}
+<div class="neuro-card glass-effect mb-4 border-gradient">
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-robot fa-lg text-gradient me-2"></i>
+        <h5 class="text-gradient mb-0">Assistant IA Littéraire</h5>
+        <span class="badge bg-pulse ms-2">GPT</span>
+    </div>
+    
+    <p class="text-secondary mb-3">
+        <i class="fas fa-wand-magic-sparkles me-2"></i>
+        Suggestions de réponses générées par intelligence artificielle :
+    </p>
+    
+    <div class="row g-3">
+        {% for response in ai_responses %}
+        <div class="col-lg-4 col-md-6">
+            <div class="ai-response-card p-3 rounded" 
+                 style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.05)); 
+                        border: 1px solid rgba(79, 172, 254, 0.3); 
+                        cursor: pointer; 
+                        transition: all 0.3s ease;"
+                 onclick="useAISuggestion('{{ response }}')"
+                 onmouseenter="highlightCard(this)"
+                 onmouseleave="unhighlightCard(this)">
+                
+                <div class="d-flex align-items-start mb-2">
+                    <div class="ai-badge me-2">
+                        <i class="fas fa-brain text-gradient"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-gradient fw-bold">Suggestion {{ forloop.counter }}</small>
+                            <i class="fas fa-arrow-right text-gradient"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-light small mb-2" style="line-height: 1.5; font-size: 0.85rem;">
+                    {{ response }}
+                </p>
+                
+                <div class="text-end">
+                    <small class="text-gradient">
+                        <i class="fas fa-magic me-1"></i>Cliquer pour utiliser
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-3 pt-3 border-top border-secondary">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <small class="text-secondary">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Réponses générées par modèle IA basé sur GPT-2
+                </small>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-sm btn-outline-gradient" onclick="refreshAISuggestions()">
+                    <i class="fas fa-sync-alt me-1"></i>Rafraîchir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Commentaires Section -->
 <div class="neuro-card">
     <h4 class="text-light mb-4">
@@ -192,47 +262,45 @@
     {% endif %}
 </div>
 
-<!-- Section IA Avancée -->
-{% if summary %}
+<!-- Section Statistiques Avancées -->
 <div class="neuro-card glass-effect mt-4">
     <h5 class="text-light mb-3">
-        <i class="fas fa-robot me-2 text-gradient"></i>Intelligence Artificielle
+        <i class="fas fa-chart-bar me-2 text-gradient"></i>Statistiques de la Discussion
     </h5>
     
-    <div class="row">
-        <!-- Résumé IA -->
-        <div class="col-md-6">
-            <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-file-contract text-gradient me-2"></i>
-                <h6 class="text-gradient mb-0">Résumé Généré</h6>
+    <div class="row text-center">
+        <div class="col-md-3">
+            <div class="stats-item">
+                <h3 class="text-gradient">{{ post.content.split|length }}</h3>
+                <small class="text-secondary">Mots</small>
             </div>
-            <p class="text-secondary small">{{ summary }}</p>
         </div>
-        
-        <!-- Statistiques -->
-        <div class="col-md-6">
-            <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-chart-bar text-gradient me-2"></i>
-                <h6 class="text-gradient mb-0">Statistiques</h6>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <h3 class="text-gradient">{{ comments.count }}</h3>
+                <small class="text-secondary">Commentaires</small>
             </div>
-            <div class="text-secondary small">
-                <div class="d-flex justify-content-between">
-                    <span>Mots dans le post:</span>
-                    <strong>{{ post.content.split|length }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Commentaires:</span>
-                    <strong>{{ comments.count }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Depuis:</span>
-                    <strong>{{ post.created_at|timesince }}</strong>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <h3 class="text-gradient">{{ post.views|default:0 }}</h3>
+                <small class="text-secondary">Vues</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-item">
+                <h3 class="text-gradient">
+                    {% if post.created_at %}
+                        {{ post.created_at|timesince }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h3>
+                <small class="text-secondary">En ligne</small>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 
 <style>
     .hover-gradient:hover {
@@ -277,44 +345,189 @@
         font-size: 0.7rem;
         padding: 0.3rem 0.6rem;
     }
+    
+    /* Styles IA */
+    .border-gradient {
+        border: 1px solid;
+        border-image: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)) 1;
+    }
+    
+    .bg-pulse {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        animation: pulse 2s infinite;
+    }
+    
+    .btn-outline-gradient {
+        border: 1px solid var(--neon-blue);
+        color: var(--neon-blue);
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-gradient:hover {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .stats-item {
+        padding: 1rem;
+    }
+    
+    .stats-item h3 {
+        margin-bottom: 0.5rem;
+        font-weight: 800;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <script>
-    // Animation pour le défilement
-    document.addEventListener('DOMContentLoaded', function() {
-        // Highlight le formulaire de commentaire
-        const commentForm = document.querySelector('form');
-        if (commentForm) {
-            commentForm.style.opacity = '0';
-            commentForm.style.transform = 'translateY(20px)';
-            commentForm.style.transition = 'all 0.6s ease';
-            
-            setTimeout(() => {
-                commentForm.style.opacity = '1';
-                commentForm.style.transform = 'translateY(0)';
-            }, 300);
-        }
-        
-        // Auto-resize du textarea
-        const textarea = document.querySelector('textarea[name="content"]');
-        if (textarea) {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        }
-    });
+// Fonctions pour l'interface IA
+function useAISuggestion(response) {
+    const textarea = document.querySelector('textarea[name="content"]');
+    if (textarea) {
+        textarea.value = response;
+        textarea.focus();
+
+        // Petite animation visuelle
+        textarea.style.transition = "0.3s";
+        textarea.style.boxShadow = "0 0 15px rgba(0, 242, 254, 0.5)";
+        setTimeout(() => textarea.style.boxShadow = "", 800);
+    }
+}
+
+function refreshAISuggestions() {
+    // Rafraîchir les suggestions IA sans recharger la page
+    const refreshBtn = document.querySelector('.btn-outline-gradient');
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Chargement...';
+    }
+
+    fetch(window.location.href + "?refresh_ai=1")
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(html, 'text/html');
+            const newAISection = newDoc.querySelector('.ai-response-card')?.parentElement?.parentElement;
+            const oldAISection = document.querySelector('.ai-response-card')?.parentElement?.parentElement;
+
+            if (newAISection && oldAISection) {
+                oldAISection.innerHTML = newAISection.innerHTML;
+            }
+        })
+        .finally(() => {
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Rafraîchir';
+            }
+        });
+}
+
+function highlightCard(card) {
+    card.style.transform = 'translateY(-2px)';
+    card.style.boxShadow = '0 5px 15px rgba(79, 172, 254, 0.3)';
+}
+
+function unhighlightCard(card) {
+    card.style.transform = 'translateY(0)';
+    card.style.boxShadow = 'none';
+}
+
+
+
+function showAIConfirmation(message) {
+    // Créer une notification élégante
+    const notification = document.createElement('div');
+    notification.className = 'ai-notification';
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-robot text-gradient me-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
     
-    // Confirmation avant suppression
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('a[href*="delete"]');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                if (!confirm('Êtes-vous sûr de vouloir supprimer cette discussion ? Cette action est irréversible.')) {
-                    e.preventDefault();
-                }
-            });
+    // Styles de la notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(10, 10, 15, 0.95);
+        border: 1px solid var(--neon-blue);
+        border-radius: 10px;
+        padding: 15px 20px;
+        color: white;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Supprimer après 3 secondes
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Auto-resize du textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="content"]');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+    
+    // Animation pour le formulaire
+    const commentForm = document.querySelector('form');
+    if (commentForm) {
+        commentForm.style.opacity = '0';
+        commentForm.style.transform = 'translateY(20px)';
+        commentForm.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            commentForm.style.opacity = '1';
+            commentForm.style.transform = 'translateY(0)';
+        }, 300);
+    }
+});
+
+// Confirmation avant suppression
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('a[href*="delete"]');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette discussion ? Cette action est irréversible.')) {
+                e.preventDefault();
+            }
         });
     });
+});
+
+// Animation CSS pour les notifications
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}
