@@ -291,9 +291,14 @@ def book_editor(request, id):
     
     if request.method == 'POST':
         content = request.POST.get('content', '')
+        title = request.POST.get('title', book.title)  # Récupérer le titre mis à jour
+        
+        # Mettre à jour le contenu et le titre du livre
         book.content = content
+        book.title = title
         book.save()
+        
         messages.success(request, "Livre sauvegardé avec succès !")
-        return redirect('book_list')
+        return redirect('book_editor', id=book.id)  # Rediriger vers la même page pour éviter les rechargements de formulaire
     
     return render(request, 'book/book_editor.html', {'book': book})
