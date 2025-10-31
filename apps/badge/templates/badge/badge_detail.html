@@ -1,0 +1,47 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Détails du Badge</h3>
+                </div>
+                <div class="card-body">
+                    {% if badge.image %}
+                    <div class="text-center mb-4">
+                        <img src="{{ badge.image.url }}" alt="{{ badge.nom }}" class="img-fluid" style="max-width: 200px;">
+                    </div>
+                    {% endif %}
+                    
+                    <h4>{{ badge.nom }}</h4>
+                    <p class="text-muted">{{ badge.description }}</p>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Type:</strong> {{ badge.get_badge_type_display }}</p>
+                            <p><strong>Valeur condition:</strong> {{ badge.condition_value }}</p>
+                            <p><strong>Date création:</strong> {{ badge.date_creation|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Statistiques</h5>
+                            <p><strong>Total utilisateurs:</strong> {{ total_users }}</p>
+                            <p><strong>Badges débloqués:</strong> {{ unlocked_users }}</p>
+                            <p><strong>Badges verrouillés:</strong> {{ locked_users }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'badge:badge_update' badge.pk %}" class="btn btn-warning">Modifier</a>
+                        <a href="{% url 'badge:badge_delete' badge.pk %}" class="btn btn-danger">Supprimer</a>
+                        <a href="{% url 'badge:badge_list' %}" class="btn btn-secondary">Retour</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -14,7 +14,10 @@ from io import BytesIO
 from datetime import datetime
 import requests
 from django.core.files.base import ContentFile
-from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, ngram_similarity, read_book_file ,clean_text, read_book_text
+from .utils import (
+    sequence_similarity, tfidf_similarity, 
+    ngram_similarity, embedding_similarity, clean_text, check_web_plagiarism
+)
 from django.utils.html import strip_tags
 import re
 import os
@@ -53,27 +56,21 @@ def read_book_text(book):
         return clean_text(book.content)
 
 def check_plagiarism_on_save(book, request):
-    # Ne comparer qu'avec les livres du même auteur
-    existing_books = Book.objects.exclude(id=book.id).filter(author=book.author)
-    if not existing_books.exists():
-        messages.info(request, "Aucun autre livre à comparer.")
-        return
-
     test_text = read_book_text(book)
-    if len(test_text) < 50:
-        messages.info(request, "Contenu trop court pour vérification.")
+    if len(test_text) < 100:
+        messages.info(request, "Contenu trop court pour analyse.")
         return
 
-    max_sim = 0
+    # 1. Plagiat dans la DB
+    existing_books = Book.objects.exclude(id=book.id).filter(author=book.author)
+    db_max_sim = 0
     similar_title = ""
-    high_similarity = False
+    high_db_plagiarism = False
 
     for other in existing_books:
         other_text = read_book_text(other)
         if len(other_text) < 50:
             continue
-
-        # 4 méthodes de similarité
         scores = [
             sequence_similarity(test_text, other_text),
             tfidf_similarity(test_text, other_text),
@@ -81,21 +78,31 @@ def check_plagiarism_on_save(book, request):
             ngram_similarity(test_text, other_text, n=5)
         ]
         avg = sum(scores) / len(scores)
-
-        if avg > max_sim:
-            max_sim = avg
+        if avg > db_max_sim:
+            db_max_sim = avg
             similar_title = other.title
+        if avg > 0.75:
+            high_db_plagiarism = True
+            break  # On arrête dès qu'on a un plagiat fort
 
-        if avg > 0.75:  # Seuil strict
-            high_similarity = True
-            break
+    # 2. Plagiat sur le web
+    web_matches = []
+    try:
+        web_matches = check_web_plagiarism(test_text)
+    except Exception as e:
+        print(f"Erreur web: {e}")
 
-    if high_similarity:
-        msg = f"Plagiat détecté avec « {similar_title} » ({round(max_sim*100, 1)}% similarité)"
+    # 3. UN SEUL MESSAGE FINAL
+    if high_db_plagiarism:
+        msg = f"Plagiat DB détecté avec « {similar_title} » ({round(db_max_sim*100,1)}%)"
+        if web_matches:
+            msg += f" | Web: {len(web_matches)} match(s)"
+        messages.warning(request, msg)
+    elif web_matches:
+        msg = f"Plagiat web détecté ({len(web_matches)} phrase(s)) | DB: {round(db_max_sim*100,1)}%"
         messages.warning(request, msg)
     else:
-        messages.success(request, f"Sauvegardé ! Similarité max : {round(max_sim*100, 1)}%")
-
+        messages.success(request, f"Sauvegardé ! DB: {round(db_max_sim*100,1)}% | Web: OK")
 # Ajouter un livre
 @login_required
 def book_create(request):
@@ -108,7 +115,7 @@ def book_create(request):
 
             # Créer un fichier .txt à partir du contenu éditeur si vide
             if not book.file and book.content:
-                content_text = read_book_content(book)
+                content_text = strip_tags(book.content)
                 if content_text.strip():
                     filename = f"{book.title.replace(' ', '_')}.txt"
                     book.file.save(filename, ContentFile(content_text.encode('utf-8')))
@@ -281,12 +288,12 @@ def plagiarism_test(request):
         return JsonResponse({"error": "Ajoutez au moins 2 livres pour tester."})
 
     test_book = books.last()
-    test_text = read_book_file(test_book)
+    test_text = read_book_text(test_book)
     other_books = books.exclude(id=test_book.id)
     results = []
 
     for book in other_books:
-        book_text = read_book_file(book)
+        book_text = read_book_text(book)
         results.append({
             "book_id": book.id,
             "book_title": book.title,
@@ -318,6 +325,8 @@ def read_book_content(file_field):
         return f"Erreur lors de la lecture du fichier : {e}"
 
 # Éditeur de texte pour le livre
+# views.py → book_editor
+
 @login_required
 def book_editor(request, id):
     book = get_object_or_404(Book, id=id)
@@ -331,39 +340,70 @@ def book_editor(request, id):
         
         # 1. Mettre à jour le contenu HTML
         book.content = content
-
-        # 2. Sauvegarder d'abord (pour avoir book.id + updated_at)
         book.save()
 
-        # 3. Créer le fichier .txt à partir du contenu
+        # Générer fichier .txt
         if content:
             filename = f"{book.title.replace(' ', '_')}.txt"
-            # Forcer la réécriture du fichier
             if book.file:
-                book.file.delete(save=False)  # Supprime l'ancien
+                book.file.delete(save=False)
             book.file.save(filename, ContentFile(content.encode('utf-8')), save=False)
-        
-        # 4. SAUVEGARDER UNE DEUXIÈME FOIS pour inclure le fichier
         book.save()
 
-        # 5. VÉRIFICATION DE PLAGIAT APRÈS TOUT
+        # Vérification plagiat
         check_plagiarism_on_save(book, request)
 
-        # 6. Réponse AJAX ou redirect
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # Récupérer TOUS les messages Django
             storage = messages.get_messages(request)
-            message_list = []
-            for message in storage:
-                message_list.append({
-                    'text': str(message),
-                    'tags': message.tags
-                })
-            
-            return JsonResponse({
-                'success': True,
-                'messages': message_list  
-            })
+            message_list = [{'text': str(m), 'tags': m.tags} for m in storage]
+            return JsonResponse({'success': True, 'messages': message_list})
+
         return redirect('book_list')
 
     return render(request, 'book/book_editor.html', {'book': book})
+
+
+def check_plagiarism_on_save(book, request):
+    test_text = read_book_text(book)
+    if len(test_text) < 100:
+        messages.info(request, "Contenu trop court pour analyse.")
+        return
+
+    # 1. Plagiat dans la DB
+    existing_books = Book.objects.exclude(id=book.id).filter(author=book.author)
+    db_max_sim = 0
+    similar_title = ""
+
+    for other in existing_books:
+        other_text = read_book_text(other)
+        if len(other_text) < 50:
+            continue
+        scores = [
+            sequence_similarity(test_text, other_text),
+            tfidf_similarity(test_text, other_text),
+            embedding_similarity(test_text, other_text),
+            ngram_similarity(test_text, other_text, n=5)
+        ]
+        avg = sum(scores) / len(scores)
+        if avg > db_max_sim:
+            db_max_sim = avg
+            similar_title = other.title
+
+    # 2. Plagiat sur le web
+    web_matches = []
+    try:
+        web_matches = check_web_plagiarism(test_text)
+    except:
+        pass  # En cas d'erreur réseau
+
+    # 3. Messages
+    if db_max_sim > 0.75:
+        messages.warning(request, f"Plagiat DB détecté avec « {similar_title} » ({round(db_max_sim*100,1)}%)")
+    elif db_max_sim > 0.5:
+        messages.info(request, f"Similarité DB : {round(db_max_sim*100,1)}% avec « {similar_title} »")
+
+    if web_matches:
+        for match in web_matches[:2]:  # Max 2 alertes
+            messages.warning(request, f"Plagiat web détecté : « {match['sentence'][:60]}... » → {match['url']} ({match['similarity']}%)")
+    else:
+        messages.success(request, f"Sauvegardé ! DB: {round(db_max_sim*100,1)}% | Web: OK")

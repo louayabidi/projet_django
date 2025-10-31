@@ -11,6 +11,7 @@ urlpatterns = [
     path("", include("apps.home.urls")),
     path('collaboration/', include('apps.collaboration.urls')),
     path('forum/', include('apps.forum.urls')),
+    path('badges/', include('apps.badge.urls')),
 ]
 
 if settings.DEBUG:

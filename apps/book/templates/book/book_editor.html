@@ -707,6 +707,9 @@
                 <button class="save-btn" onclick="saveBook()">
                     <i class="fas fa-save me-2"></i> Sauvegarder
                 </button>
+                <button class="ai-btn" onclick="checkWebPlagiarism()" title="Vérifier sur le web">
+    <i class="fas fa-globe"></i> Web
+</button>
             </div>
         </div>
 
@@ -903,6 +906,53 @@
         }
         quill.on('text-change', updateStats);
         updateStats();
+
+
+function checkWebPlagiarism() {
+    const text = quill.getText().trim();
+    if (!text) {
+        showAlert('Écrivez du texte d’abord', 'warning');
+        return;
+    }
+
+    showAISuggestions('<div class="ai-loading"><div class="ai-spinner"></div><p>Recherche sur le web...</p></div>');
+
+    fetch('/books/api/ai/check-web-plagiarism/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ text: text })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        let html = '<div class="ai-suggestion-item"><div class="ai-suggestion-title">Résultat web</div><div class="ai-suggestion-content">';
+        
+        if (result.success && result.matches.length > 0) {
+            result.matches.forEach(m => {
+                html += `<p><strong>${m.sentence}</strong><br>
+                         <a href="${m.url}" target="_blank">${m.title}</a> (${m.similarity}%)</p>`;
+            });
+        } else if (result.success) {
+            html += '<p style="color:green;">Aucun plagiat détecté sur le web !</p>';
+        } else {
+            html += `<p style="color:red;">Erreur : ${result.error}</p>`;
+        }
+        html += '</div></div>';
+        document.getElementById('aiSuggestionsContent').innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        document.getElementById('aiSuggestionsContent').innerHTML = 
+            '<div class="ai-suggestion-item"><div class="ai-suggestion-content" style="color:red;">Erreur réseau ou serveur</div></div>';
+    });
+}
 
         // Show custom alert
         function showAlert(message, type = 'info') {

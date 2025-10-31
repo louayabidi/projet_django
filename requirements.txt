@@ -140,3 +140,8 @@ wheel==0.45.1
 whitenoise==5.3.0
 wrapt==1.17.3
 PyPDF2==3.0.1
+requests
+beautifulsoup4
+googlesearch-python
+nltk
+sentence-transformers

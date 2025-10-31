@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 import json
 from .ai_service import ai_service
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .utils import check_web_plagiarism
 
 @login_required
 @require_http_methods(["POST"])
@@ -305,3 +308,34 @@ def suggest_titles(request):
             'success': False, 
             'error': f'Une erreur est survenue lors de la génération des titres: {str(e)}'
         }, status=500)
+    
+
+
+
+@csrf_exempt
+@require_POST
+def check_web_plagiarism_view(request):
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '').strip()
+
+        if not text:
+            return JsonResponse({'error': 'Texte vide'}, status=400)
+
+        if len(text) < 50:
+            return JsonResponse({'error': 'Texte trop court'}, status=400)
+
+        # UTILISE LA BONNE FONCTION
+        matches = check_web_plagiarism(text)
+
+        return JsonResponse({
+            'success': True,
+            'matches': matches
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON invalide'}, status=400)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)

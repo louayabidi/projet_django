@@ -1,0 +1,49 @@
+{% extends 'badge/base_admin.html' %}
+
+{% block title %}Gestion des Badges{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'badge:badge_create' %}" class="btn btn-success">
+    <i class="fas fa-plus"></i> Créer
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    {% for badge in badges %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center p-4">
+                {% if badge.image %}
+                    <img src="{{ badge.image.url }}" class="rounded-circle mb-3" style="width: 70px; height: 70px; object-fit: cover;" alt="{{ badge.nom }}">
+                {% else %}
+                    <div class="bg-gradient-warning rounded-circle d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                        <i class="fas fa-medal text-white" style="font-size: 2rem;"></i>
+                    </div>
+                {% endif %}
+                <h5 class="card-title mb-1">{{ badge.nom }}</h5>
+                <p class="text-muted small mb-2">{{ badge.description|truncatewords:12 }}</p>
+                <span class="badge bg-info mb-3">{{ badge.get_badge_type_display }}</span>
+                <div class="d-flex justify-content-center gap-1">
+                    <a href="{% url 'badge:badge_detail' badge.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'badge:badge_update' badge.pk %}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'badge:badge_delete' badge.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+        <h5>Aucun badge</h5>
+        <a href="{% url 'badge:badge_create' %}" class="btn btn-success">Créer</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

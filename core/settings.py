@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'apps.book',
     'apps.forum',
     'apps.collaboration',
+    'apps.badge',
 ]
 
 MIDDLEWARE = [
