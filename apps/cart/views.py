@@ -1,6 +1,8 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from apps.book.models import Book
 from apps.cart.models import Cart, CartItem
+from apps.booksRecommendation.models import UserInteraction
 
 @login_required(login_url="/login/")
 def cart_user_view(request):
@@ -24,6 +26,10 @@ def cart_user_view(request):
 def add_to_cart(request, book_id):
     user_cart, _ = Cart.objects.get_or_create(user=request.user)
     cart_item, _ = CartItem.objects.get_or_create(cart=user_cart, book_id=book_id)
+    book = Book.objects.get(id=book_id)
+    interaction, _ = UserInteraction.objects.get_or_create(user=request.user, book=book)
+    interaction.added_to_cart = True
+    interaction.save()
     return redirect('cart_user_view')
 
 

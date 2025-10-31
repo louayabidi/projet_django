@@ -17,6 +17,8 @@ from django.core.files.base import ContentFile
 from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, ngram_similarity, read_book_file
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from apps.booksRecommendation.models import UserInteraction
+
 # Test route
 @login_required
 def test_view(request):
@@ -318,6 +320,9 @@ def getAllFinishedBooks(request):
 def add_to_favorites(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     book.favorites.add(request.user)
+    interaction, _ = UserInteraction.objects.get_or_create(user=request.user, book=book)
+    interaction.favorited = True
+    interaction.save()
     return JsonResponse({"success": True})
 @login_required
 @require_http_methods(["GET"])

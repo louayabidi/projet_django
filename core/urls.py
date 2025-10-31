@@ -10,6 +10,8 @@ urlpatterns = [
     path('books/', include('apps.book.urls')),          # Front-end classique
     path("", include("apps.home.urls")),
     path('cart/', include('apps.cart.urls')),
+    path('recommendation/', include('apps.booksRecommendation.urls')),
+
 ]
 
 if settings.DEBUG:

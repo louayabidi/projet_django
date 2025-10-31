@@ -1,0 +1,10 @@
+<h2>Recommandations pour vous</h2>
+{% if recommended_books %}
+    <ul>
+    {% for book in recommended_books %}
+        <li>{{ book.title }} - Genre: {{ book.genre }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Aucune recommandation pour le moment.</p>
+{% endif %}
