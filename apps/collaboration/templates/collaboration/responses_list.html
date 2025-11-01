@@ -4,97 +4,418 @@
 <head>
     <meta charset="UTF-8">
     <title>Réponses à la collaboration - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --card-hover: #232340;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --text-muted: #6c757d;
+            --border-color: #2d2d4d;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+        }
+
+        .books-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .books-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23667eea' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .book-icon-hero {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .response-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .response-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border-color: #667eea;
+        }
+
+        .response-card.pending {
+            border-left: 4px solid #ffc107;
+        }
+
+        .response-card.accepted {
+            border-left: 4px solid #28a745;
+        }
+
+        .response-card.refused {
+            border-left: 4px solid #dc3545;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+
+        .response-message {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: var(--transition);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .btn-success-custom {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            color: white;
+        }
+
+        .btn-warning-custom {
+            background: var(--warning-gradient);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            color: #333;
+        }
+
+        .btn-warning-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 154, 86, 0.4);
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            background: var(--darker-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .books-hero { padding: 3rem 0; }
+            .book-icon-hero { font-size: 3rem; }
+            .stats-container { flex-direction: column; gap: 1rem; }
+            .response-actions { flex-direction: column; gap: 0.5rem; }
+            .response-actions .btn { width: 100%; }
+        }
+    </style>
 </head>
 <body class="books-page">
 
     {% include 'includes/header.html' %}
+    <br><br>
 
-    <section class="books-hero mt-5">
+    <!-- Hero Section -->
+    <section class="books-hero">
         <div class="container text-center">
-            <div class="book-icon-hero mb-4 glow">
+            <div class="book-icon-hero">
                 <i class="fas fa-comments"></i>
             </div>
-            <h1>Réponses pour : <span class="gradient-text">{{ post.title }}</span></h1>
-            <p class="lead">Gérez les réponses des artistes à votre demande de collaboration</p>
+            <h1 class="display-5 fw-bold text-white mb-3">Réponses pour : <span class="gradient-text">{{ post.title }}</span></h1>
+            <p class="lead text-white">Gérez les réponses des artistes à votre demande de collaboration</p>
         </div>
     </section>
 
-    <section class="books-container mt-4">
-        <div class="container">
+    <section class="container mb-5">
+        <!-- Bouton retour -->
+        <div class="mb-4 fade-in">
+            <a href="{% url 'collaborations_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Retour aux collaborations
+            </a>
+        </div>
 
-            <!-- Bouton retour -->
-            <div class="mb-4">
-                <a href="{% url 'collaborations_list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Retour aux collaborations
-                </a>
-            </div>
+      
 
-            {% if responses %}
-                <div class="row">
-                    {% for response in responses %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="book-card p-3 shadow-sm">
-                            <div class="book-card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-user me-2"></i> {{ response.responder.username }}
-                                </h5>
-                                <!-- Statut visuel -->
-                                {% if response.status == 'accepted' %}
-                                    <span class="badge bg-success">{{ response.get_status_display }}</span>
-                                {% elif response.status == 'refused' %}
-                                    <span class="badge bg-danger">{{ response.get_status_display }}</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">{{ response.get_status_display }}</span>
-                                {% endif %}
-                            </div>
+        {% if responses %}
+            <div class="row">
+                {% for response in responses %}
+                <div class="col-12 mb-4">
+                    <div class="response-card {{ response.status }} fade-in">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- En-tête de la réponse -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="author-avatar">
+                                        {{ response.responder.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-white">{{ response.responder.username }}</h5>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ response.created_at|date:"d/m/Y à H:i" }}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Message de la réponse -->
+                                <div class="response-message">
+                                    <p class="mb-0">{{ response.message|linebreaks }}</p>
+                                </div>
 
-                            <div class="book-card-body mt-2">
-                                <p class="mb-2"><strong>Message :</strong></p>
-                                <p>{{ response.message }}</p>
-
-                                <p class="small text-muted">
-                                    <i class="fas fa-calendar-alt me-1"></i> {{ response.created_at|date:"d/m/Y H:i" }}
-                                </p>
-
-                                <!-- Actions disponibles uniquement pour l'auteur du post -->
-                                {% if post.author == request.user %}
+                                <!-- Fichier PDF -->
+                                {% if response.pdf_file %}
                                 <div class="mt-3">
-                                    {% if response.status == 'pending' %}
-                                        <a href="{% url 'update_response_status' response.id 'accepted' %}" class="btn btn-sm btn-success me-1">
-                                            <i class="fas fa-check"></i> Accepter
-                                        </a>
-                                        <a href="{% url 'update_response_status' response.id 'refused' %}" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-times"></i> Refuser
-                                        </a>
-                                    {% endif %}
-
-                                    <a href="{% url 'update_response' response.id %}" class="btn btn-sm btn-warning me-1">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </a>
-                                    <a href="{% url 'delete_response' response.id %}" class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i> Supprimer
+                                    <a href="{{ response.pdf_file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-file-pdf me-1"></i> Voir le PDF joint
                                     </a>
                                 </div>
                                 {% endif %}
                             </div>
+                            
+                            <div class="col-md-4">
+                                <div class="text-md-end">
+                                    <!-- Statut -->
+                                    <div class="mb-3">
+                                        {% if response.status == 'pending' %}
+                                            <span class="status-badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i> En attente
+                                            </span>
+                                        {% elif response.status == 'accepted' %}
+                                            <span class="status-badge bg-success text-white">
+                                                <i class="fas fa-check me-1"></i> Acceptée
+                                            </span>
+                                        {% elif response.status == 'refused' %}
+                                            <span class="status-badge bg-danger text-white">
+                                                <i class="fas fa-times me-1"></i> Refusée
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Actions -->
+                                    {% if post.author == request.user %}
+                                    <div class="response-actions">
+                                        {% if response.status == 'pending' %}
+                                            <div class="d-flex gap-2 mb-3 flex-md-column">
+                                                <a href="{% url 'update_response_status' response.id 'accepted' %}" class="btn btn-success-custom flex-fill">
+                                                    <i class="fas fa-check me-1"></i> Accepter
+                                                </a>
+                                                <a href="{% url 'update_response_status' response.id 'refused' %}" class="btn btn-danger-custom flex-fill">
+                                                    <i class="fas fa-times me-1"></i> Refuser
+                                                </a>
+                                            </div>
+                                        {% endif %}
+
+                                        
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="empty-state text-center mt-5">
-                    <div class="empty-icon mb-3">
-                        <i class="fas fa-inbox fa-2x"></i>
-                    </div>
-                    <h4>Aucune réponse reçue pour le moment</h4>
-                    <p class="text-muted">Les artistes intéressés par votre projet apparaîtront ici.</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- État vide -->
+            <div class="empty-state fade-in">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
                 </div>
-            {% endif %}
-        </div>
+                <h4 class="fw-bold text-white mb-3">Aucune réponse reçue pour le moment</h4>
+                <p class="text-muted mb-4 fs-5">Les artistes intéressés par votre projet apparaîtront ici.</p>
+                <a href="{% url 'collaborations_list' %}" class="btn btn-primary-custom">
+                    <i class="fas fa-arrow-left me-2"></i> Retour aux collaborations
+                </a>
+            </div>
+        {% endif %}
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation au scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Confirmation pour les actions de suppression
+            const deleteButtons = document.querySelectorAll('.btn-outline-danger');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Êtes-vous sûr de vouloir supprimer cette réponse ? Cette action est irréversible.')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
 
 </body>
 </html>

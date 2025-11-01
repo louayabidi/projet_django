@@ -4,73 +4,289 @@
 <head>
     <meta charset="UTF-8">
     <title>Répondre à une collaboration - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .response-hero {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --card-hover: #232340;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --text-muted: #6c757d;
+            --border-color: #2d2d4d;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
         }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+        }
+
+        .response-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .response-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234facfe' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
         .form-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
+
         .post-preview {
-            background: #f8f9fa;
+            background: var(--darker-bg);
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 2rem;
             border-left: 4px solid #4facfe;
+            border: 1px solid var(--border-color);
         }
-        .post-preview h5 { color: #333; margin-bottom: 0.5rem; }
-        .post-author { display: flex; align-items: center; margin-bottom: 1rem; }
+
+        .post-preview h5 { 
+            color: var(--text-primary); 
+            margin-bottom: 0.5rem; 
+        }
+
+        .post-author { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 1rem; 
+        }
+
         .author-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; margin-right: 1rem;
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%;
+            background: var(--success-gradient);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            color: white; 
+            font-weight: bold; 
+            margin-right: 1rem;
         }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-label { font-weight: 600; color: #333; margin-bottom: 0.5rem; display: block; }
-        .form-control, .form-textarea { border: 2px solid #e9ecef; border-radius: 10px; padding: 0.75rem 1rem; transition: all 0.3s ease; font-size: 1rem; }
-        .form-control:focus, .form-textarea:focus { border-color: #4facfe; box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25); }
-        .form-textarea { min-height: 200px; resize: vertical; line-height: 1.6; }
-        .btn-primary { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; transition: transform 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
-        .character-count { text-align: right; font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem; }
-        .character-count.warning { color: #ffc107; }
-        .character-count.danger { color: #dc3545; }
-        .tips-section { background: #e8f4fe; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; border-left: 4px solid #4facfe; }
-        .tips-section h6 { color: #333; margin-bottom: 1rem; }
-        .tips-list { list-style: none; padding: 0; margin: 0; }
-        .tips-list li { padding: 0.5rem 0; display: flex; align-items: flex-start; }
-        .tips-list li i { color: #4facfe; margin-right: 0.75rem; margin-top: 0.2rem; }
-        .response-example { background: white; border-radius: 8px; padding: 1rem; margin-top: 1rem; border: 1px dashed #4facfe; }
-        .response-example p { margin: 0; font-style: italic; color: #666; }
+
+        .form-group { 
+            margin-bottom: 1.5rem; 
+        }
+
+        .form-label { 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            margin-bottom: 0.5rem; 
+            display: block; 
+        }
+
+        .form-control, .form-textarea { 
+            border: 2px solid var(--border-color); 
+            border-radius: 10px; 
+            padding: 0.75rem 1rem; 
+            transition: var(--transition); 
+            font-size: 1rem;
+            background: var(--darker-bg);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus, .form-textarea:focus { 
+            border-color: #4facfe; 
+            box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25); 
+            background: var(--card-hover);
+        }
+
+        .form-textarea { 
+            min-height: 200px; 
+            resize: vertical; 
+            line-height: 1.6; 
+        }
+
+        .btn-primary-custom {
+            background: var(--success-gradient);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: var(--transition);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: transparent;
+            transition: var(--transition);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .character-count { 
+            text-align: right; 
+            font-size: 0.875rem; 
+            color: var(--text-muted); 
+            margin-top: 0.25rem; 
+        }
+
+        .character-count.warning { 
+            color: #ffc107; 
+        }
+
+        .character-count.danger { 
+            color: #dc3545; 
+        }
+
+        .tips-section { 
+            background: rgba(79, 172, 254, 0.1); 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            margin-top: 2rem; 
+            border-left: 4px solid #4facfe;
+            border: 1px solid rgba(79, 172, 254, 0.2);
+        }
+
+        .tips-section h6 { 
+            color: var(--text-primary); 
+            margin-bottom: 1rem; 
+        }
+
+        .tips-list { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+
+        .tips-list li { 
+            padding: 0.5rem 0; 
+            display: flex; 
+            align-items: flex-start; 
+            color: var(--text-secondary);
+        }
+
+        .tips-list li i { 
+            color: #4facfe; 
+            margin-right: 0.75rem; 
+            margin-top: 0.2rem; 
+        }
+
+        .response-example { 
+            background: var(--darker-bg); 
+            border-radius: 8px; 
+            padding: 1rem; 
+            margin-top: 1rem; 
+            border: 1px dashed #4facfe; 
+        }
+
+        .response-example p { 
+            margin: 0; 
+            font-style: italic; 
+            color: var(--text-secondary); 
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .border-top {
+            border-color: var(--border-color) !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Placeholder styling */
+        .form-control::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .response-hero { padding: 3rem 0; }
+            .form-container { padding: 1.5rem; margin: 0 1rem; }
+            .d-flex.justify-content-between { flex-direction: column; gap: 1rem; }
+            .d-flex.justify-content-between > div { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body class="books-page">
 {% include 'includes/header.html' %}
 <br><br>
 
+<!-- Hero Section -->
 <section class="response-hero">
     <div class="container text-center">
-        <div class="mb-4">
-            <i class="fas fa-handshake fa-3x mb-3"></i>
-            <h1 class="display-5 fw-bold">Proposer une Collaboration</h1>
-            <p class="lead fs-5">Présentez-vous et expliquez pourquoi vous souhaitez collaborer sur ce projet</p>
+        <div class="mb-4 fade-in">
+            <i class="fas fa-handshake fa-3x mb-3 text-white"></i>
+            <h1 class="display-5 fw-bold text-white">Proposer une Collaboration</h1>
+            <p class="lead fs-5 text-white">Présentez-vous et expliquez pourquoi vous souhaitez collaborer sur ce projet</p>
         </div>
     </div>
 </section>
 
 <section class="container mb-5">
-    <div class="form-container">
+    <div class="form-container fade-in">
         <!-- Aperçu du post -->
         <div class="post-preview">
             <div class="post-author">
@@ -78,11 +294,11 @@
                     {{ post.author.username|first|upper }}
                 </div>
                 <div>
-                    <h6 class="mb-1 fw-bold">{{ post.author.username }}</h6>
+                    <h6 class="mb-1 fw-bold text-white">{{ post.author.username }}</h6>
                     <small class="text-muted">{{ post.created_at|date:"d/m/Y" }}</small>
                 </div>
             </div>
-            <h5 class="fw-bold">{{ post.title }}</h5>
+            <h5 class="fw-bold text-white">{{ post.title }}</h5>
             <p class="text-muted mb-0">{{ post.content|truncatewords:30 }}</p>
         </div>
 
@@ -114,11 +330,12 @@
                 {% if form.pdf_file.errors %}
                     <div class="text-danger mt-1">{{ form.pdf_file.errors }}</div>
                 {% endif %}
+                <small class="text-muted">Vous pouvez joindre un portfolio, un CV ou des exemples de travaux (max: 10MB)</small>
             </div>
 
             <!-- Section de conseils -->
             <div class="tips-section">
-                <h6><i class="fas fa-lightbulb me-2"></i>Conseils pour une bonne réponse :</h6>
+                <h6 class="text-white"><i class="fas fa-lightbulb me-2"></i>Conseils pour une bonne réponse :</h6>
                 <ul class="tips-list">
                     <li><i class="fas fa-check-circle"></i>Présentez-vous brièvement et vos domaines de compétence</li>
                     <li><i class="fas fa-check-circle"></i>Expliquez pourquoi ce projet vous intéresse particulièrement</li>
@@ -128,7 +345,7 @@
                 </ul>
                 
                 <div class="response-example">
-                    <p class="mb-1"><strong>Exemple de réponse :</strong></p>
+                    <p class="mb-1 text-white"><strong>Exemple de réponse :</strong></p>
                     <p>"Bonjour ! Je suis [Votre nom], [votre spécialité]. Votre projet m'intéresse car [raison spécifique]. Je propose [votre idée de collaboration]. Je suis disponible [vos disponibilités]. Au plaisir d'échanger !"</p>
                 </div>
             </div>
@@ -137,11 +354,11 @@
                 <a href="{% url 'collaboration_detail' post.id %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Retour au post
                 </a>
-                <div>
-                    <a href="{% url 'collaborations_list' %}" class="btn btn-outline-danger me-2">
+                <div class="d-flex gap-2">
+                    <a href="{% url 'collaborations_list' %}" class="btn btn-outline-danger">
                         <i class="fas fa-times me-1"></i> Annuler
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary-custom">
                         <i class="fas fa-paper-plane me-1"></i> Envoyer ma proposition
                     </button>
                 </div>
@@ -175,19 +392,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('responseForm');
     form.addEventListener('submit', function(e) {
         const message = messageInput.value.trim();
-        if (message.length < 10) { e.preventDefault(); alert('Veuillez rédiger un message plus détaillé (au moins 10 caractères).'); messageInput.focus(); return; }
-        if (message.length > 1000) { e.preventDefault(); alert('Votre message est trop long. Veuillez le raccourcir à 1000 caractères maximum.'); messageInput.focus(); return; }
-        if (!confirm('Êtes-vous sûr de vouloir envoyer votre proposition de collaboration ?')) { e.preventDefault(); }
+        if (message.length < 10) { 
+            e.preventDefault(); 
+            alert('Veuillez rédiger un message plus détaillé (au moins 10 caractères).'); 
+            messageInput.focus(); 
+            return; 
+        }
+        if (message.length > 1000) { 
+            e.preventDefault(); 
+            alert('Votre message est trop long. Veuillez le raccourcir à 1000 caractères maximum.'); 
+            messageInput.focus(); 
+            return; 
+        }
+        if (!confirm('Êtes-vous sûr de vouloir envoyer votre proposition de collaboration ?')) { 
+            e.preventDefault(); 
+        }
     });
 
-    const formContainer = document.querySelector('.form-container');
-    formContainer.style.opacity = '0';
-    formContainer.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-        formContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        formContainer.style.opacity = '1';
-        formContainer.style.transform = 'translateY(0)';
-    }, 200);
+    // Animation au scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
 });
 </script>
 

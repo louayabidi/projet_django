@@ -144,7 +144,7 @@
         }
 
         .book-meta {
- Hendrik            display: flex;
+             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 10px;
@@ -329,6 +329,17 @@
                                         <i class="fas fa-calendar-alt"></i>
                                         <strong>Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
                                     </div>
+
+                                     <!-- Auteur et rôle -->
+            <div class="book-meta mt-2">
+                <i class="fas fa-user"></i>
+                <strong>Auteur:</strong> {{ book.author.username }}
+                {% if user == book.author %}
+                    <span class="badge bg-primary ms-2">Auteur</span>
+                {% elif user in book.collaborators.all %}
+                    <span class="badge bg-success ms-2">Collaborateur</span>
+                {% endif %}
+            </div>
                                     
                                     {% if book.synopsis %}
                                     <div class="book-meta mt-3">
@@ -347,6 +358,8 @@
                                         <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="PDF">
                                             <i class="fas fa-file-pdf me-1"></i> PDF
                                         </a>
+                                        {% if user == book.author %}
+
                                         <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
                                             <i class="fas fa-edit me-1"></i> Modifier
                                         </a>
@@ -354,6 +367,8 @@
                                            onclick="return confirm('Supprimer ce livre ? Cette action est irréversible.')">
                                             <i class="fas fa-trash-alt me-1"></i> Supprimer
                                         </a>
+                                        {% endif %}
+
                                     </div>
                                 </div>
                             </div>

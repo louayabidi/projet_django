@@ -1,0 +1,217 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Gestion des Collaborations {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                    <li class="breadcrumb-item">
+                        <a href="/">
+                            <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="/dashboard.html">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Collaborations</li>
+                </ol>
+            </nav>
+            <h2 class="h4">Gestion des Collaborations</h2>
+            <p class="mb-0">Vue d'ensemble de toutes les offres de collaboration et leurs réponses</p>
+        </div>
+        
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-12 col-sm-6 col-xl-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 px-xl-0">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape icon-md icon-shape-primary rounded me-4">
+                                    <svg class="icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <h2 class="h5 fw-bold mb-0">{{ total_posts }}</h2>
+                                    <small class="text-gray">Offres de collaboration</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 px-xl-0">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape icon-md icon-shape-success rounded me-4">
+                                    <svg class="icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <h2 class="h5 fw-bold mb-0">{{ total_responses }}</h2>
+                                    <small class="text-gray">Réponses totales</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 px-xl-0">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape icon-md icon-shape-warning rounded me-4">
+                                    <svg class="icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <h2 class="h5 fw-bold mb-0">{{ pending_responses }}</h2>
+                                    <small class="text-gray">Réponses en attente</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 px-xl-0">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape icon-md icon-shape-info rounded me-4">
+                                    <svg class="icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <h2 class="h5 fw-bold mb-0">{{ accepted_responses }}</h2>
+                                    <small class="text-gray">Collaborations acceptées</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if posts %}
+    <div class="card border-0 shadow">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="fs-5 fw-bold mb-0">Offres de Collaboration</h2>
+                </div>
+                <div class="col text-end">
+                    <small class="text-gray">Triées par date de création</small>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-bottom" scope="col">#</th>
+                        <th class="border-bottom" scope="col">Titre</th>
+                        <th class="border-bottom" scope="col">Auteur</th>
+                        <th class="border-bottom" scope="col">Réponses</th>
+                        <th class="border-bottom" scope="col">Statut des réponses</th>
+                        <th class="border-bottom" scope="col">Date de création</th>
+                        <th class="border-bottom" scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td class="text-gray-900">{{ forloop.counter }}</td>
+                        <td class="fw-bolder text-gray-900">
+                            <div class="d-flex align-items-center">
+                                {% if post.image %}
+                                <img src="{{ post.image.url }}" class="avatar rounded-circle me-3" alt="{{ post.title }}" style="width: 32px; height: 32px; object-fit: cover;">
+                                {% else %}
+                                <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
+                                    <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                </div>
+                                {% endif %}
+                                {{ post.title|truncatewords:5 }}
+                            </div>
+                        </td>
+                        <td class="text-gray-900">
+                            <div class="d-flex align-items-center">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                {{ post.author.username }}
+                            </div>
+                        </td>
+                        <td class="text-gray-900">
+                            <span class="badge bg-primary rounded-pill">{{ post.responses.count }}</span>
+                        </td>
+                        <td>
+                            {% with responses=post.responses.all %}
+                                {% if responses %}
+                                    <div class="d-flex gap-1">
+                                        {% for response in responses|slice:":3" %}
+                                            {% if response.status == 'accepted' %}
+                                                <span class="badge bg-success" title="Acceptée par {{ response.responder.username }}">✓</span>
+                                            {% elif response.status == 'refused' %}
+                                                <span class="badge bg-danger" title="Refusée par {{ response.responder.username }}">✗</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark" title="En attente par {{ response.responder.username }}">⏱</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if responses.count > 3 %}
+                                            <span class="badge bg-secondary">+{{ responses.count|add:"-3" }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">Aucune</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="text-gray-900">{{ post.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                
+                                <a href="{% url 'admin_collaboration_responses' post.id %}" class="btn btn-sm btn-info" title="Gérer les réponses">
+                                    <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                                </a>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+            <nav aria-label="Page navigation">
+                <small class="fw-bold">Affichage de {{ posts.count }} collaboration{{ posts.count|pluralize }} au total</small>
+            </nav>
+        </div>
+    </div>
+    
+    {% endif %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
