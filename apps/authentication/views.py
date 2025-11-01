@@ -4,8 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 # Create your views here.
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login
+
+from apps.authentication.models import User
+from apps.book.models import Book
 from .forms import LoginForm, SignUpForm
 
 
@@ -60,5 +63,11 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
+def user_books(request, user_id):
+    # Récupérer l'utilisateur cible
+    user = get_object_or_404(User, id=user_id)
+    # Filtrer les livres de cet utilisateur
+    books = Book.objects.filter(author=user)
+    return render(request, "accounts/profile.html", {"books": books, "profile_user": user})
 
 

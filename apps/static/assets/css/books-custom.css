@@ -2,7 +2,14 @@
  * Custom CSS for Books Management Page
  * Matching Volt Dashboard Style with Modern Animations
  */
-
+.books-hero .btn {
+    position: relative;
+    z-index: 10;       /* met les boutons au-dessus de tout */
+    pointer-events: auto;  /* active le clic */
+}
+.books-hero .book-icon-hero.glow {
+    pointer-events: none; /* laisse passer les clics vers les boutons */
+}
 :root {
     --primary-color: #262B40;
     --secondary-color: #31344b;

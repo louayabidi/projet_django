@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque de {{ profile_user.get_full_name|default:profile_user.username }} - ArtCollab</title>
+    <meta name="description" content="Bibliothèque de {{ profile_user.get_full_name|default:profile_user.username }} sur ArtCollab">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
+    <!-- Bootstrap 5 & Volt CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/books-custom.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="books-page">
+    {% include 'includes/header.html' %}
+    <br><br>
+
+    <!-- Hero Section -->
+    <section class="books-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="book-icon-hero mb-4 glow">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h1 class="mb-3">
+                        Livres de <span class="gradient-text">{{ profile_user.get_full_name|default:profile_user.username }}</span>
+                    </h1>
+                    <p class="lead">
+                        Découvrez tous les livres publiés par cet utilisateur
+                    </p>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="stats-card">
+                        <h3>{{ books.count }}</h3>
+                        <p>Livre{{ books.count|pluralize }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Books Container -->
+    <section class="books-container">
+        <div class="container">
+
+            {% if books %}
+            <div class="row">
+                {% for book in books %}
+                <div class="col-md-6 col-lg-4" style="--animation-order: {{ forloop.counter }};">
+                    <div class="book-card">
+                        <div class="book-card-header d-flex justify-content-between align-items-center">
+                            <h3 class="book-card-title mb-0">
+                                <i class="fas fa-book me-2"></i> {{ book.title }}
+                            </h3>
+                            <!-- Icône panier si l'utilisateur connecté n'est pas l'auteur -->
+
+                            <i class="fas fa-shopping-cart text-primary" 
+                               style="cursor:pointer;" 
+                               title="Ajouter au panier"
+                               onclick="addToCart({{ book.id }})"></i>
+                            <i class="fas fa-heart text-danger"
+                               style="cursor:pointer;"
+                               title="Ajouter aux favoris"
+                               onclick="addToFavorites({{ book.id }})"></i>
+                               
+                                
+                        </div>
+
+                        <div class="book-card-body">
+                            <div class="book-meta">
+                                <i class="fas fa-user"></i>
+                                <strong class="me-1">Auteur:</strong>
+                                {{ book.author.get_full_name|default:book.author.username }}
+                            </div>
+                            <div class="book-meta">
+                                <i class="fas fa-tag"></i>
+                                <strong class="me-1">Genre:</strong> {{ book.genre }}
+                            </div>
+                            <div class="book-meta">
+                                <i class="fas fa-info-circle"></i>
+                                <strong class="me-1">Statut:</strong>
+                                <span class="book-status 
+                                    {% if book.status == 'en_cours' %}status-en-cours
+                                    {% elif book.status == 'termine' %}status-termine
+                                    {% else %}status-archive{% endif %}">
+                                    {% if book.status == 'en_cours' %}
+                                        <i class="fas fa-spinner me-1"></i> En cours
+                                    {% elif book.status == 'termine' %}
+                                        <i class="fas fa-check me-1"></i> Terminé
+                                    {% else %}
+                                        <i class="fas fa-archive me-1"></i> Archivé
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="book-meta">
+                                {% if book.price == 0 %}
+                                <i class="fas fa-gift"></i>
+                                <strong class="me-1">Prix:</strong> <span class="text-success">Gratuit</span>
+                                {% else %}
+                                <i class="fas fa-euro-sign"></i>
+                                <strong class="me-1">Prix:</strong> {{ book.price|floatformat:2 }} €
+                                {% endif %}
+                            </div>
+                            <div class="book-meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
+                            </div>
+                            {% if book.synopsis %}
+                            <div class="book-meta mt-3">
+                                <i class="fas fa-align-left"></i>
+                                <strong class="me-1">Synopsis:</strong>
+                            </div>
+                            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                {{ book.synopsis|truncatewords:20 }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state text-center">
+                <div class="empty-icon"><i class="fas fa-book-reader"></i></div>
+                <h3>Aucun livre trouvé pour cet utilisateur</h3>
+                <p>Revenez plus tard pour découvrir de nouveaux livres.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'assets/vendor/@popperjs/core/dist/umd/popper.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+    <!-- Custom Animation Script -->
+    <script>
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+            const addToCart = (bookId) => {
+        fetch(`/cart/add/${bookId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})  // corps nécessaire même vide pour POST
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Livre ajouté au panier !');
+            } else {
+                alert('Erreur lors de l\'ajout au panier.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la requête.');
+        });
+        };
+        const addToFavorites = (bookId) => {
+            fetch(`/books/favorites/add/${bookId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Livre ajouté aux favoris !');
+                } else {
+                    alert('Erreur lors de l\'ajout aux favoris.');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'ajout aux favoris.');
+            });
+        };
+        document.querySelectorAll('.book-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+
+</body>
+</html>

@@ -12,6 +12,9 @@ urlpatterns = [
     path('collaboration/', include('apps.collaboration.urls')),
     path('forum/', include('apps.forum.urls')),
     path('badges/', include('apps.badge.urls')),
+    path('cart/', include('apps.cart.urls')),
+    path('recommendation/', include('apps.booksRecommendation.urls')),
+
 ]
 
 if settings.DEBUG:

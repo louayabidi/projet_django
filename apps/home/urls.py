@@ -17,7 +17,7 @@ urlpatterns = [
     # Admin book management routes
     path('admin-books/', views.admin_books_list, name='admin_books_list'),
     path('admin-books/<int:id>/', views.admin_book_detail, name='admin_book_detail'),
-    
+    path('search/', views.search, name='search'),
 
     # Matches any html file
     re_path(r'^.*\.html$', views.pages, name='pages'),

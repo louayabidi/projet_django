@@ -1029,12 +1029,15 @@
                             Genre
                             <span class="required-mark">*</span>
                         </label>
-                        <input type="text" name="{{ form.genre.name }}" 
-                               class="form-control" 
-                               id="{{ form.genre.id_for_label }}"
-                               value="{{ form.genre.value|default:'' }}"
-                               placeholder="Ex: Science-fiction, Roman, Thriller..."
-                               required>
+                        <select name="{{ form.genre.name }}" 
+            id="{{ form.genre.id_for_label }}" 
+            class="form-control" required>
+        <option value="" disabled {% if not form.genre.value %}selected{% endif %}>-- Choisir un genre --</option>
+
+        {% for value, label in form.genre.field.choices %}
+            <option value="{{ value }}" {% if form.genre.value == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
                         {% if form.genre.errors %}
                             <span class="error-text">{{ form.genre.errors.0 }}</span>
                         {% endif %}
@@ -1075,6 +1078,25 @@
                         </p>
                         {% if form.synopsis.errors %}
                             <span class="error-text">{{ form.synopsis.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-row">
+                        <p class="form-help">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Indiquez le prix du livre en euros
+                        </p>
+                        <p class="form-help">
+                            <i class="fas fa-euro-sign me-1"></i>
+                            Exemple : 19.99
+                        </p>
+                        <input type="number" name="{{ form.price.name }}"
+                            class="form-control"
+                            id="{{ form.price.id_for_label }}"
+                            value="{{ form.price.value|default:'' }}"
+                            placeholder="Ex: 19.99"
+                            min="0" step="0.01" inputmode="decimal" required>
+                        {% if form.price.errors %}
+                            <span class="error-text">{{ form.price.errors.0 }}</span>
                         {% endif %}
                     </div>
                     <div class="form-row">

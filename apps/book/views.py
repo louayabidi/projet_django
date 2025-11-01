@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
+
+from apps.booksRecommendation.views import get_book_recommendations
+from apps.cart.models import UserLibrary
 from .models import Book
 from .forms import BookForm
 from reportlab.lib.pagesizes import A4
@@ -21,6 +24,10 @@ from .utils import (
 from django.utils.html import strip_tags
 import re
 import os
+from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, ngram_similarity
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from apps.booksRecommendation.models import UserInteraction
 
 # .
 # Test route
@@ -407,3 +414,71 @@ def check_plagiarism_on_save(book, request):
             messages.warning(request, f"Plagiat web détecté : « {match['sentence'][:60]}... » → {match['url']} ({match['similarity']}%)")
     else:
         messages.success(request, f"Sauvegardé ! DB: {round(db_max_sim*100,1)}% | Web: OK")
+    
+    return render(request, 'book/book_editor.html', {'book': book})
+@login_required
+def getAllFinishedBooks(request):
+    finished_books = Book.objects.filter(status__in=['termine', 'archive'])
+    data = [
+        {
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.get_full_name() or book.author.username,
+            'genre': book.genre,
+            'created_at': book.created_at.strftime('%Y-%m-%d %H:%M'),
+            'updated_at': book.updated_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for book in finished_books
+    ]
+    return render(request, 'book/all_books.html', {'books': finished_books})
+@login_required
+@require_http_methods(["POST"])
+def add_to_favorites(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    book.favorites.add(request.user)
+    interaction, _ = UserInteraction.objects.get_or_create(user=request.user, book=book)
+    interaction.favorited = True
+    interaction.save()
+    return JsonResponse({"success": True})
+@login_required
+@require_http_methods(["GET"])
+def view_favorites(request):
+    favorite_books = Book.objects.filter(favorites=request.user)
+    data = [
+        {
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.get_full_name() or book.author.username,
+            'genre': book.genre,
+            'created_at': book.created_at.strftime('%Y-%m-%d %H:%M'),
+            'updated_at': book.updated_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for book in favorite_books
+    ]
+    return render(request, 'book/favorite_book.html', {'books': favorite_books})
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def remove_from_favorites(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    book.favorites.remove(request.user)
+    return JsonResponse({"success": True})
+@login_required
+@require_http_methods(["GET"])
+def check_is_favorite(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    is_favorite = book.favorites.filter(id=request.user.id).exists()
+    return JsonResponse({"is_favorite": is_favorite})
+def book_detail(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    recommended_books = get_book_recommendations(book_id, top_n=5)
+    
+    return render(request, 'book/book_detail.html', {
+        'book': book,
+        'recommended_books': recommended_books
+    })
+@login_required(login_url="/login/")
+def my_library(request):
+    user_books = UserLibrary.objects.filter(user=request.user).select_related('book')
+    books = [entry.book for entry in user_books]  # Extraire les objets Book
+    return render(request, 'book/my_library.html', {'books': books})
