@@ -1,0 +1,203 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Réponses - {{ post.title }} {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                    <li class="breadcrumb-item">
+                        <a href="/">
+                            <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="/dashboard.html">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_collaborations' %}">Collaborations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Réponses</li>
+                </ol>
+            </nav>
+            <h2 class="h4">Gestion des Réponses</h2>
+            <p class="mb-0">Réponses pour : <strong>"{{ post.title }}"</strong></p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'admin_collaborations' %}" class="btn btn-sm btn-secondary">
+                <svg class="icon icon-xs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Retour
+            </a>
+        </div>
+    </div>
+
+    <!-- Informations sur le post -->
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text text-muted">{{ post.content|truncatewords:30 }}</p>
+                    <div class="d-flex align-items-center">
+                        <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                        <small class="text-muted">Par {{ post.author.username }} • {{ post.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex flex-column">
+                        <span class="h5 mb-2">{{ post.responses.count }} réponse{{ post.responses.count|pluralize }}</span>
+                        <div class="d-flex gap-2 justify-content-md-end">
+                            <span class="badge bg-success">{{ accepted_count }} acceptée{{ accepted_count|pluralize }}</span>
+                            <span class="badge bg-warning text-dark">{{ pending_count }} en attente</span>
+                            <span class="badge bg-danger">{{ refused_count }} refusée{{ refused_count|pluralize }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if responses %}
+    <div class="card border-0 shadow">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="fs-5 fw-bold mb-0">Toutes les réponses</h2>
+                </div>
+                <div class="col text-end">
+                    <small class="text-gray">{{ responses.count }} réponse{{ responses.count|pluralize }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-bottom" scope="col">Artiste</th>
+                        <th class="border-bottom" scope="col">Message</th>
+                        <th class="border-bottom" scope="col">Statut</th>
+                        <th class="border-bottom" scope="col">Date</th>
+                        <th class="border-bottom" scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for response in responses %}
+                    <tr>
+                        <td class="text-gray-900">
+                            <div class="d-flex align-items-center">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                <div>
+                                    <div class="fw-bold">{{ response.responder.username }}</div>
+                                    <small class="text-muted">{{ response.responder.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-gray-900">
+                            <div class="message-preview">
+                                {{ response.message|truncatewords:15 }}
+                                {% if response.pdf_file %}
+                                <div class="mt-1">
+                                    <small class="text-primary">
+                                        <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        PDF joint
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if response.status == 'accepted' %}
+                                <span class="badge bg-success">Acceptée</span>
+                            {% elif response.status == 'refused' %}
+                                <span class="badge bg-danger">Refusée</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-900">
+                            <small>{{ response.created_at|date:"d/m/Y H:i" }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#responseModal{{ response.id }}">
+                                    <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                {% if user.is_superuser %}
+                                <a href="{% url 'delete_response' response.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réponse ?')">
+                                    <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Modal pour voir la réponse complète -->
+                            <div class="modal fade" id="responseModal{{ response.id }}" tabindex="-1" aria-labelledby="responseModalLabel{{ response.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="responseModalLabel{{ response.id }}">
+                                                Réponse de {{ response.responder.username }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <strong>Statut :</strong>
+                                                {% if response.status == 'accepted' %}
+                                                    <span class="badge bg-success">Acceptée</span>
+                                                {% elif response.status == 'refused' %}
+                                                    <span class="badge bg-danger">Refusée</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">En attente</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Message :</strong>
+                                                <p class="mt-2">{{ response.message|linebreaks }}</p>
+                                            </div>
+                                            {% if response.pdf_file %}
+                                            <div class="mb-3">
+                                                <strong>Fichier joint :</strong>
+                                                <div class="mt-2">
+                                                    <a href="{{ response.pdf_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <svg class="icon icon-xs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                        Voir le PDF
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <div class="text-muted">
+                                                <small>Envoyé le {{ response.created_at|date:"d/m/Y à H:i" }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            {% if response.status == 'pending' %}
+                                            <a href="{% url 'update_response_status' response.id 'accepted' %}" class="btn btn-success">Accepter</a>
+                                            <a href="{% url 'update_response_status' response.id 'refused' %}" class="btn btn-danger">Refuser</a>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card border-0 shadow">
+        <div class="card-body text-center py-5">
+            <svg class="icon icon-xl text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <h5 class="text-gray-600">Aucune réponse pour le moment</h5>
+            <p class="text-gray-500">Cette collaboration n'a pas encore reçu de réponse.</p>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

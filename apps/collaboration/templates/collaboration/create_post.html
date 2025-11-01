@@ -4,83 +4,230 @@
 <head>
     <meta charset="UTF-8">
     <title>Créer un post - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Styles existants, inchangés */
-        .creation-hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --card-hover: #232340;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --text-muted: #6c757d;
+            --border-color: #2d2d4d;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
         }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+        }
+
+        .creation-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .creation-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23667eea' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
         .form-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-label { font-weight: 600; color: #333; margin-bottom: 0.5rem; display: block; }
+
+        .form-group { 
+            margin-bottom: 1.5rem; 
+        }
+
+        .form-label { 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            margin-bottom: 0.5rem; 
+            display: block; 
+        }
+
         .form-control, .form-select, .form-textarea {
-            border: 2px solid #e9ecef;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-size: 1rem;
+            background: var(--darker-bg);
+            color: var(--text-primary);
         }
+
         .form-control:focus, .form-select:focus, .form-textarea:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: var(--card-hover);
         }
-        .form-textarea { min-height: 150px; resize: vertical; }
+
+        .form-textarea { 
+            min-height: 150px; 
+            resize: vertical; 
+        }
+
         .file-upload-area {
-            border: 2px dashed #dee2e6;
+            border: 2px dashed var(--border-color);
             border-radius: 10px;
             padding: 2rem;
             text-align: center;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            transition: var(--transition);
+            background: var(--darker-bg);
             cursor: pointer;
         }
-        .file-upload-area:hover { border-color: #667eea; background: #f0f2ff; }
-        .file-upload-area.dragover { border-color: #667eea; background: #e8ecff; }
-        .file-icon { font-size: 3rem; color: #6c757d; margin-bottom: 1rem; }
-        .image-preview { max-width: 200px; max-height: 200px; border-radius: 10px; margin-top: 1rem; display: none; }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .file-upload-area:hover { 
+            border-color: #667eea; 
+            background: rgba(102, 126, 234, 0.1); 
+        }
+
+        .file-upload-area.dragover { 
+            border-color: #667eea; 
+            background: rgba(102, 126, 234, 0.2); 
+        }
+
+        .file-icon { 
+            font-size: 3rem; 
+            color: var(--text-muted); 
+            margin-bottom: 1rem; 
+        }
+
+        .image-preview { 
+            max-width: 200px; 
+            max-height: 200px; 
+            border-radius: 10px; 
+            margin-top: 1rem; 
+            display: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-gradient);
             border: none;
             padding: 0.75rem 2rem;
             border-radius: 10px;
             font-weight: 600;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            color: white;
         }
-        .btn-primary:hover {
+
+        .btn-primary-custom:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: white;
         }
-        .character-count { text-align: right; font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem; }
-        .character-count.warning { color: #ffc107; }
-        .character-count.danger { color: #dc3545; }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: var(--transition);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .character-count { 
+            text-align: right; 
+            font-size: 0.875rem; 
+            color: var(--text-muted); 
+            margin-top: 0.25rem; 
+        }
+
+        .character-count.warning { 
+            color: #ffc107; 
+        }
+
+        .character-count.danger { 
+            color: #dc3545; 
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .border-top {
+            border-color: var(--border-color) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Style pour les selects */
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23b0b0cc' viewBox='0 0 16 16'%3e%3cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3e%3c/svg%3e");
+        }
+
+        /* Placeholder styling */
+        .form-control::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .creation-hero { padding: 3rem 0; }
+            .form-container { padding: 1.5rem; margin: 0 1rem; }
+        }
     </style>
 </head>
 <body>
     {% include 'includes/header.html' %}
     <br><br><br>
+
+    <!-- Hero Section -->
     <section class="creation-hero">
         <div class="container text-center">
-            <div class="mb-4">
-                <i class="fas fa-handshake fa-3x mb-3"></i>
-                <h1 class="display-5 fw-bold">Nouvelle Collaboration</h1>
-                <p class="lead">Partagez votre projet et trouvez des artistes passionnés</p>
+            <div class="mb-4 fade-in">
+                <i class="fas fa-handshake fa-3x mb-3 text-white"></i>
+                <h1 class="display-5 fw-bold text-white">Nouvelle Collaboration</h1>
+                <p class="lead text-white">Partagez votre projet et trouvez des artistes passionnés</p>
             </div>
         </div>
     </section>
 
     <div class="container mb-5">
-        <div class="form-container">
+        <div class="form-container fade-in">
             <form method="post" enctype="multipart/form-data" id="collaborationForm">
                 {% csrf_token %}
 
@@ -128,7 +275,7 @@
                         <div class="file-icon">
                             <i class="fas fa-cloud-upload-alt"></i>
                         </div>
-                        <h5>Glissez-déposez votre image ici</h5>
+                        <h5 class="text-white">Glissez-déposez votre image ici</h5>
                         <p class="text-muted">ou cliquez pour parcourir vos fichiers</p>
                         <p class="small text-muted">Formats supportés: JPG, PNG, GIF - Max: 5MB</p>
                         {{ form.image }}
@@ -141,41 +288,15 @@
                     {% endif %}
                 </div>
 
-                <!-- Catégorie -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-tag me-2"></i>Catégorie (optionnelle)
-                    </label>
-                    <select class="form-select" name="category">
-                        <option value="">Sélectionnez une catégorie</option>
-                        <option value="peinture">Peinture</option>
-                        <option value="dessin">Dessin</option>
-                        <option value="sculpture">Sculpture</option>
-                        <option value="photographie">Photographie</option>
-                        <option value="digital">Art Digital</option>
-                        <option value="autre">Autre</option>
-                    </select>
-                </div>
+                
 
-                <!-- Niveau requis -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-chart-line me-2"></i>Niveau requis (optionnel)
-                    </label>
-                    <select class="form-select" name="skill_level">
-                        <option value="">Tous niveaux</option>
-                        <option value="debutant">Débutant</option>
-                        <option value="intermediaire">Intermédiaire</option>
-                        <option value="avance">Avancé</option>
-                        <option value="professionnel">Professionnel</option>
-                    </select>
-                </div>
+                
 
                 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                     <a href="{% url 'collaborations_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Retour aux collaborations
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary-custom">
                         <i class="fas fa-paper-plane me-1"></i> Publier la collaboration
                     </button>
                 </div>
@@ -229,6 +350,24 @@
                     fileInput.dispatchEvent(new Event('change'));
                 });
             }
+
+            // Animation au scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
         });
     </script>
 </body>

@@ -4,20 +4,291 @@
 <head>
     <meta charset="UTF-8">
     <title>Supprimer le post - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --card-hover: #232340;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --text-muted: #6c757d;
+            --border-color: #2d2d4d;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+        }
+
+        .delete-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .delete-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ff6b6b' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .delete-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            color: #ff6b6b;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .post-preview {
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .post-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .post-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .post-content {
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            line-height: 1.6;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .post-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(transparent, var(--darker-bg));
+        }
+
+        .btn-danger-custom {
+            background: var(--danger-gradient);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: var(--transition);
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .consequences-list {
+            text-align: left;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .consequences-list li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .consequences-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .delete-hero { padding: 3rem 0; }
+            .delete-container { padding: 1.5rem; margin: 0 1rem; }
+            .warning-icon { font-size: 3rem; }
+        }
+    </style>
 </head>
 <body>
     {% include 'includes/header.html' %}
-<br><br><br>
+    <br><br><br>
 
-    <div class="container mt-5">
-        <h2>Supprimer le post : {{ post.title }}</h2>
-        <p>Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Supprimer</button>
-            <a href="{% url 'collaborations_list' %}" class="btn btn-secondary ms-2">Annuler</a>
-        </form>
+    <!-- Hero Section -->
+    <section class="delete-hero">
+        <div class="container text-center">
+            <div class="fade-in">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3 text-white"></i>
+                <h1 class="display-5 fw-bold text-white">Supprimer la Collaboration</h1>
+                <p class="lead text-white">Action irréversible - Veuillez confirmer votre choix</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <div class="delete-container fade-in">
+            <!-- Icône d'avertissement -->
+            <div class="warning-icon">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+
+            <h2 class="text-white mb-4">Confirmer la suppression</h2>
+            
+            <!-- Aperçu du post -->
+            <div class="post-preview">
+                <div class="post-title">
+                    <i class="fas fa-file-alt me-2"></i>{{ post.title }}
+                </div>
+                <div class="post-meta">
+                    <i class="fas fa-user me-1"></i>Créé par {{ post.author.username }}
+                    <i class="fas fa-clock ms-3 me-1"></i>{{ post.created_at|date:"d/m/Y à H:i" }}
+                    <i class="fas fa-comments ms-3 me-1"></i>{{ post.responses.count }} réponse{{ post.responses.count|pluralize }}
+                </div>
+                {% if post.content %}
+                <div class="post-content">
+                    {{ post.content|truncatewords:30 }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Conséquences -->
+            <div class="consequences-list">
+                <h5 class="text-white mb-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>Cette action supprimera définitivement :
+                </h5>
+                <ul>
+                    <li><i class="fas fa-check-circle me-2 text-danger"></i>Le post de collaboration</li>
+                    <li><i class="fas fa-check-circle me-2 text-danger"></i>Toutes les réponses associées ({{ post.responses.count }})</li>
+                    <li><i class="fas fa-check-circle me-2 text-danger"></i>Les échanges et discussions</li>
+                    <li><i class="fas fa-check-circle me-2 text-danger"></i>L'image associée au post</li>
+                </ul>
+            </div>
+
+            <p class="text-muted mb-4 fs-5">
+                <strong>Attention :</strong> Cette action ne peut pas être annulée.
+            </p>
+
+            <!-- Formulaire de confirmation -->
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <button type="submit" class="btn btn-danger-custom">
+                        <i class="fas fa-trash me-2"></i> Confirmer la suppression
+                    </button>
+                    <a href="{% url 'collaborations_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Annuler et retourner
+                    </a>
+                </div>
+            </form>
+
+            <!-- Message de sécurité -->
+            <div class="mt-4 pt-3 border-top">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Pour des raisons de sécurité, cette action nécessite une confirmation explicite.
+                </small>
+            </div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation au scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Confirmation supplémentaire pour le bouton de suppression
+            const deleteForm = document.querySelector('form');
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', function(e) {
+                    if (!confirm('Êtes-vous ABSOLUMENT sûr de vouloir supprimer définitivement cette collaboration ?')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

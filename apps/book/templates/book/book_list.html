@@ -144,7 +144,7 @@
         }
 
         .book-meta {
- Hendrik            display: flex;
+             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 10px;
@@ -329,6 +329,17 @@
                                         <i class="fas fa-calendar-alt"></i>
                                         <strong>Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
                                     </div>
+
+                                     <!-- Auteur et rôle -->
+            <div class="book-meta mt-2">
+                <i class="fas fa-user"></i>
+                <strong>Auteur:</strong> {{ book.author.username }}
+                {% if user == book.author %}
+                    <span class="badge bg-primary ms-2">Auteur</span>
+                {% elif user in book.collaborators.all %}
+                    <span class="badge bg-success ms-2">Collaborateur</span>
+                {% endif %}
+            </div>
                                     
                                     {% if book.synopsis %}
                                     <div class="book-meta mt-3">
@@ -339,47 +350,27 @@
                                         {{ book.synopsis|truncatewords:20 }}
                                     </p>
                                     {% endif %}
-                                </span>
-                            </div>
-                            <div class="book-meta">
-                                {% if book.price == 0 %}
+                                    
+                                    <div class="book-actions">
+                                        <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire">
+                                            <i class="fas fa-pen me-1"></i> Écrire
+                                        </a>
+                                        <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="PDF">
+                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                        </a>
+                                        {% if user == book.author %}
 
-                                <i class="fas fa-gift"></i>
-                                <strong class="me-1">Prix:</strong> <span class="text-success   ">Gratuit</span>
-                                {% else %}
-                                <i class="fas fa-euro-sign"></i>
-                                <strong class="me-1">Prix:</strong> {{ book.price|floatformat:2 }} €
-                                {% endif %}
-                            </div>
-                            
-                            <div class="book-meta">
-                                <i class="fas fa-calendar-alt"></i>
-                                <strong class="me-1">Créé le:</strong> {{ book.created_at|date:"d/m/Y" }}
-                            </div>
-                            
-                            {% if book.synopsis %}
-                            <div class="book-meta mt-3">
-                                <i class="fas fa-align-left"></i>
-                                <strong class="me-1">Synopsis:</strong>
-                            </div>
-                            <p class="text-muted small" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
-                                {{ book.synopsis|truncatewords:20 }}
-                            </p>
-                            {% endif %}
-                            
-                            <div class="book-actions">
-                                <a href="{% url 'book_editor' book.id %}" class="btn btn-action btn-write" title="Écrire le livre">
-                                    <i class="fas fa-pen me-1"></i> Écrire
-                                </a>
-                                <a href="{% url 'book_download_pdf' book.id %}" class="btn btn-action btn-download" title="Télécharger en PDF">
-                                    <i class="fas fa-file-pdf me-1"></i> PDF
-                                </a>
-                                <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
-                                    <i class="fas fa-edit me-1"></i> Modifier
-                                </a>
-                                <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete">
-                                    <i class="fas fa-trash-alt me-1"></i> Supprimer
-                                </a>
+                                        <a href="{% url 'book_update' book.id %}" class="btn btn-action btn-edit">
+                                            <i class="fas fa-edit me-1"></i> Modifier
+                                        </a>
+                                        <a href="{% url 'book_delete' book.id %}" class="btn btn-action btn-delete" 
+                                           onclick="return confirm('Supprimer ce livre ? Cette action est irréversible.')">
+                                            <i class="fas fa-trash-alt me-1"></i> Supprimer
+                                        </a>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}

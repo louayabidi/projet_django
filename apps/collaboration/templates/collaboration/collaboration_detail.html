@@ -4,46 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ post.title }} - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --card-hover: #232340;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --text-muted: #6c757d;
+            --border-color: #2d2d4d;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+        }
+
         .post-hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: white;
-            padding: 3rem 0;
+            padding: 4rem 0;
             margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
         }
+
+        .post-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23667eea' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
         .post-content {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
             margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
         }
+
         .response-card {
-            border: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            box-shadow: var(--card-shadow);
             margin-bottom: 1.5rem;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
         }
+
         .response-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border-color: #667eea;
         }
+
         .response-card.pending {
             border-left: 4px solid #ffc107;
         }
+
         .response-card.accepted {
             border-left: 4px solid #28a745;
         }
+
         .response-card.refused {
             border-left: 4px solid #dc3545;
         }
+
         .author-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -51,42 +98,127 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
+
         .post-image {
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
         }
+
         .action-buttons .btn {
             border-radius: 8px;
             padding: 0.5rem 1.5rem;
             font-weight: 500;
+            transition: var(--transition);
         }
+
         .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-weight: 500;
         }
+
         .response-actions {
-            border-top: 1px solid #e9ecef;
+            border-top: 1px solid var(--border-color);
             padding-top: 1rem;
             margin-top: 1rem;
         }
+
         .empty-responses {
             text-align: center;
-            padding: 3rem 1rem;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 2px dashed #dee2e6;
+            padding: 4rem 1rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
         }
+
         .back-button {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
         }
+
         .back-button:hover {
             background: rgba(255,255,255,0.2);
             color: white;
+            transform: translateX(-5px);
+        }
+
+        .response-count-box {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .response-message {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .content-text {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .text-primary {
+            color: #667eea !important;
+        }
+
+        .border-top {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .post-hero { padding: 3rem 0; }
+            .post-content { padding: 1.5rem; }
+            .response-count-box { margin-top: 1rem; }
         }
     </style>
 </head>
@@ -100,26 +232,26 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <a href="{% url 'collaborations_list' %}" class="btn back-button mb-3">
+                <a href="{% url 'collaborations_list' %}" class="btn back-button mb-3 fade-in">
                     <i class="fas fa-arrow-left me-2"></i>Retour aux collaborations
                 </a>
-                <h1 class="display-5 fw-bold mb-3">{{ post.title }}</h1>
-                <div class="d-flex align-items-center">
+                <h1 class="display-5 fw-bold mb-3 text-white">{{ post.title }}</h1>
+                <div class="d-flex align-items-center slide-in">
                     <div class="author-avatar me-3">
                         {{ post.author.username|first|upper }}
                     </div>
                     <div>
-                        <div class="fw-bold fs-5">{{ post.author.username }}</div>
-                        <div class="opacity-75">
+                        <div class="fw-bold fs-5 text-white">{{ post.author.username }}</div>
+                        <div class="opacity-75 text-white">
                             <i class="fas fa-clock me-1"></i>{{ post.created_at|date:"d/m/Y à H:i" }}
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 text-md-end">
-                <div class="response-count-box bg-white text-dark rounded-pill px-4 py-3 d-inline-block">
+                <div class="response-count-box fade-in">
                     <i class="fas fa-comments me-2 text-primary"></i>
-                    <span class="fw-bold fs-4">{{ post.responses.count }}</span>
+                    <span class="fw-bold fs-4 text-white">{{ post.responses.count }}</span>
                     <span class="text-muted">réponse{{ post.responses.count|pluralize }}</span>
                 </div>
             </div>
@@ -129,7 +261,7 @@
 
 <div class="container">
     <!-- Post Content -->
-    <div class="post-content">
+    <div class="post-content fade-in">
         <div class="row">
             {% if post.image %}
             <div class="col-lg-6 mb-4">
@@ -143,7 +275,7 @@
                     <h4 class="mb-4 text-primary">
                         <i class="fas fa-align-left me-2"></i>Description du projet
                     </h4>
-                    <div class="content-text" style="line-height: 1.8; font-size: 1.1rem;">
+                    <div class="content-text">
                         {{ post.content|linebreaks }}
                     </div>
                     
@@ -162,23 +294,67 @@
         </div>
     </div>
 
+    {% if post.author == request.user and recommended_artists %}
+<div class="card p-4 mb-4 fade-in" style="background: var(--card-bg); border:1px solid var(--border-color); border-radius:12px;">
+    
+    <h4 class="fw-bold text-white mb-4">
+        <i class="fas fa-user-check text-primary me-2"></i>
+        Profils recommandés
+    </h4>
+
+    {% for user, score in recommended_artists %}
+    {% if score > 0 %}
+        <div class="mb-4">
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold text-white">{{ user.username }}</span>
+                                <p>{{ user.ai_text }}</p>
+
+                {% if score >= 15 %}
+                    <span class="badge bg-success">Forte compatibilité</span>
+                {% elif score >= 7 %}
+                    <span class="badge bg-warning text-dark">Bonne compatibilité</span>
+                {% else %}
+                    <span class="badge bg-secondary">Compatibilité faible</span>
+                {% endif %}
+
+            </div>
+
+            <div class="progress mt-2" style="height: 8px;">
+                <div class="progress-bar" role="progressbar"
+                    style="width: {{ score|floatformat:0 }}%; background: var(--primary-gradient);">
+                </div>
+            </div>
+
+            <small class="text-muted">
+                Score basé sur : style artistique, historique de collaborations, expérience...
+            </small>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+
     <!-- Responses Section -->
     <div class="responses-section">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0">
+        <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+            <h3 class="mb-0 text-white">
                 <i class="fas fa-comments me-2 text-primary"></i>
                 Réponses des artistes
                 <span class="badge bg-primary ms-2 fs-6">{{ post.responses.count }}</span>
             </h3>
-            <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary btn-lg">
+            <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary-custom">
                 <i class="fas fa-plus-circle me-2"></i> Proposer une collaboration
             </a>
         </div>
 
         {% if post.responses.exists %}
             <div class="responses-list">
+
                 {% for response in post.responses.all %}
-                <div class="card response-card {{ response.status }}">
+                <div class="card response-card {{ response.status }} fade-in">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-8">
@@ -187,7 +363,7 @@
                                         {{ response.responder.username|first|upper }}
                                     </div>
                                     <div>
-                                        <h5 class="mb-1 fw-bold">{{ response.responder.username }}</h5>
+                                        <h5 class="mb-1 fw-bold text-white">{{ response.responder.username }}</h5>
                                         <small class="text-muted">
                                             <i class="fas fa-clock me-1"></i>
                                             {{ response.created_at|date:"d/m/Y à H:i" }}
@@ -195,44 +371,64 @@
                                     </div>
                                 </div>
                                 
-                                <div class="response-message bg-light rounded p-3">
-                                    <p class="mb-0" style="line-height: 1.6;">{{ response.message|linebreaks }}</p>
+                                <div class="response-message">
+                                    <p class="mb-0">{{ response.message|linebreaks }}</p>
                                 </div>
                             </div>
                             
                             <div class="col-md-4">
                                 <div class="text-md-end">
-                                    <div class="mb-3">
-                                        {% if response.status == 'pending' %}
-                                            <span class="status-badge bg-warning text-dark">
-                                                <i class="fas fa-clock me-1"></i>En attente
-                                            </span>
-                                        {% elif response.status == 'accepted' %}
-                                            <span class="status-badge bg-success text-white">
-                                                <i class="fas fa-check me-1"></i>Acceptée
-                                            </span>
-                                        {% elif response.status == 'refused' %}
-                                            <span class="status-badge bg-danger text-white">
-                                                <i class="fas fa-times me-1"></i>Refusée
-                                            </span>
-                                        {% endif %}
+
+                                    {% comment %} Statut visible seulement pour l'auteur du post et l'auteur de la réponse {% endcomment %}
+                                    {% if response.responder == request.user or post.author == request.user %}
+                                        <div class="mb-3">
+                                            {% if response.status == 'pending' %}
+                                                {% if post.author == request.user %}
+                                                    <span class="status-badge bg-warning text-dark">
+                                                        <i class="fas fa-clock me-1"></i>En attente
+                                                    </span>
+                                                {% endif %}
+                                            {% elif response.status == 'accepted' %}
+                                                <span class="status-badge bg-success text-white">
+                                                    <i class="fas fa-check me-1"></i>Acceptée
+                                                </span>
+                                            {% elif response.status == 'refused' %}
+                                                <span class="status-badge bg-danger text-white">
+                                                    <i class="fas fa-times me-1"></i>Refusée
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% comment %} Modifier/Supprimer pour l'auteur de la réponse {% endcomment %}
+                                    {% if response.responder == request.user %}
+                                    <div class="response-actions mt-2">
+                                        <a href="{% url 'update_response' response.id %}" class="btn btn-warning btn-sm mb-1">
+                                            <i class="fas fa-edit me-1"></i>Modifier
+                                        </a>
+                                        <a href="{% url 'delete_response' response.id %}" class="btn btn-outline-danger btn-sm mb-1"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réponse ?')">
+                                            <i class="fas fa-trash me-1"></i>Supprimer
+                                        </a>
                                     </div>
-                                    
+                                    {% endif %}
+
+                                    {% comment %} Boutons Accepter/Refuser visibles seulement pour l'auteur du post {% endcomment %}
                                     {% if post.author == request.user and response.status == 'pending' %}
-<div class="response-actions">
-    <p class="text-muted small mb-2">Gérer cette réponse :</p>
-    <div class="d-flex gap-2 flex-md-column">
-        <a href="{% url 'update_response_status' response.id 'accepted' %}" 
-           class="btn btn-success btn-sm flex-fill">
-            <i class="fas fa-check me-1"></i>Accepter
-        </a>
-        <a href="{% url 'update_response_status' response.id 'refused' %}" 
-           class="btn btn-outline-danger btn-sm flex-fill">
-            <i class="fas fa-times me-1"></i>Refuser
-        </a>
-    </div>
-</div>
-{% endif %}
+                                    <div class="response-actions mt-2">
+                                        <p class="text-muted small mb-2">Gérer cette réponse :</p>
+                                        <div class="d-flex gap-2 flex-md-column">
+                                            <a href="{% url 'update_response_status' response.id 'accepted' %}" 
+                                               class="btn btn-success btn-sm flex-fill">
+                                                <i class="fas fa-check me-1"></i>Accepter
+                                            </a>
+                                            <a href="{% url 'update_response_status' response.id 'refused' %}" 
+                                               class="btn btn-outline-danger btn-sm flex-fill">
+                                                <i class="fas fa-times me-1"></i>Refuser
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endif %}
 
                                 </div>
                             </div>
@@ -240,26 +436,25 @@
                     </div>
                 </div>
                 {% endfor %}
+
             </div>
         {% else %}
-            <!-- Empty State -->
-            <div class="empty-responses">
+            <div class="empty-responses fade-in">
                 <i class="fas fa-comment-slash fa-4x text-muted mb-4"></i>
-                <h4 class="fw-bold text-muted mb-3">Aucune réponse pour le moment</h4>
+                <h4 class="fw-bold text-white mb-3">Aucune réponse pour le moment</h4>
                 <p class="text-muted mb-4 fs-5">Soyez le premier à proposer votre collaboration !</p>
-                <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary btn-lg">
+                <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary-custom">
                     <i class="fas fa-handshake me-2"></i> Proposer ma collaboration
                 </a>
             </div>
         {% endif %}
     </div>
 
-    <!-- Call to Action Bottom -->
     {% if post.responses.exists %}
-    <div class="text-center mt-5 pt-4 border-top">
-        <h4 class="mb-3">Vous souhaitez aussi collaborer ?</h4>
+    <div class="text-center mt-5 pt-4 border-top fade-in">
+        <h4 class="mb-3 text-white">Vous souhaitez aussi collaborer ?</h4>
         <p class="text-muted mb-4">Rejoignez les artistes qui ont déjà proposé leur aide.</p>
-        <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary btn-lg">
+        <a href="{% url 'respond_to_collaboration' post.id %}" class="btn btn-primary-custom">
             <i class="fas fa-plus-circle me-2"></i> Ajouter ma proposition
         </a>
     </div>
@@ -267,30 +462,47 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animation des cartes de réponse
-        const responseCards = document.querySelectorAll('.response-card');
-        responseCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateX(-20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateX(0)';
-            }, index * 150);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    const responseCards = document.querySelectorAll('.response-card');
+    responseCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-20px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateX(0)';
+        }, index * 150);
+    });
 
-        // Confirmation pour les actions de suppression
-        const deleteButtons = document.querySelectorAll('.btn-outline-danger');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                if (!confirm('Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.')) {
-                    e.preventDefault();
-                }
-            });
+    const deleteButtons = document.querySelectorAll('.btn-outline-danger');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.')) {
+                e.preventDefault();
+            }
         });
     });
+
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+});
 </script>
 
 </body>

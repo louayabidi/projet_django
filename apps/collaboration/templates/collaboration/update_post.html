@@ -3,392 +3,156 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Modifier le post - ArtCollab</title>
+    <title>Modifier la Collaboration - ArtCollab</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon/homework.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/volt.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .edit-hero {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
+        /* Styles comme avant : couleurs, gradients, formulaire, hero, boutons */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --dark-bg: #0f0f1a;
+            --darker-bg: #0a0a12;
+            --card-bg: #1a1a2e;
+            --border-color: #2d2d4d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0cc;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        
-        .form-control, .form-select, .form-textarea {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-        
-        .form-control:focus, .form-select:focus, .form-textarea:focus {
-            border-color: #ff9a9e;
-            box-shadow: 0 0 0 0.2rem rgba(255, 154, 158, 0.25);
-        }
-        
-        .form-textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        
-        .file-upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            cursor: pointer;
-        }
-        
-        .file-upload-area:hover {
-            border-color: #ff9a9e;
-            background: #fff5f5;
-        }
-        
-        .file-upload-area.dragover {
-            border-color: #ff9a9e;
-            background: #ffecec;
-        }
-        
-        .file-icon {
-            font-size: 3rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-        }
-        
-        .image-preview-container {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        
-        .current-image {
-            max-width: 300px;
-            max-height: 200px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-        }
-        
-        .image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 10px;
-            margin-top: 1rem;
-            display: none;
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: transform 0.3s ease;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
-        }
-        
-        .character-count {
-            text-align: right;
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-top: 0.25rem;
-        }
-        
-        .character-count.warning {
-            color: #ffc107;
-        }
-        
-        .character-count.danger {
-            color: #dc3545;
-        }
-        
-        .current-image-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        body { background: var(--dark-bg); color: var(--text-primary); font-family: 'Segoe UI', sans-serif; }
+        .form-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-control, .form-textarea { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 2px solid var(--border-color); background: var(--darker-bg); color: var(--text-primary); font-size: 1rem; transition: all 0.3s; }
+        .form-control:focus, .form-textarea:focus { border-color: #ff9a56; outline: none; background: #232340; }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .file-upload-area { border: 2px dashed var(--border-color); border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--darker-bg); }
+        .file-upload-area.dragover { border-color: #ff9a56; background: rgba(255,154,86,0.2); }
+        .image-preview { max-width: 200px; max-height: 200px; display: none; margin-top: 1rem; border-radius: 10px; border: 1px solid var(--border-color); }
+        .current-image { max-width: 300px; max-height: 200px; border-radius: 10px; margin-bottom: 1rem; border: 1px solid var(--border-color); }
+        .btn-success-custom { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); border: none; padding: 0.75rem 2rem; border-radius: 10px; color: #fff; font-weight: 600; transition: all 0.3s; }
+        .btn-success-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(86,171,47,0.4); }
+        .text-danger { color: #dc3545; }
+        .character-count { font-size: 0.875rem; color: #b0b0cc; text-align: right; margin-top: 0.25rem; }
+        .character-count.warning { color: #ffc107; }
+        .character-count.danger { color: #dc3545; }
     </style>
 </head>
 <body>
     {% include 'includes/header.html' %}
-    <br><br><br>
-    <section class="edit-hero">
-        <div class="container text-center">
-            <div class="mb-4">
-                <i class="fas fa-edit fa-3x mb-3"></i>
-                <h1 class="display-5 fw-bold">Modifier la Collaboration</h1>
-                <p class="lead">Améliorez votre projet et attirez plus d'artistes</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="container mb-5">
+    <div class="container">
         <div class="form-container">
+            <h2>Modifier la Collaboration</h2>
             <form method="post" enctype="multipart/form-data" id="editForm">
                 {% csrf_token %}
-                
+
+                {% if form.non_field_errors %}
+                    <div class="text-danger mb-2">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+
+                <div class="form-group">
+    <label class="form-label">Livre associé</label>
+    {{ form.book }}
+    {% if form.book.errors %}
+        <div class="text-danger">{{ form.book.errors }}</div>
+    {% endif %}
+</div>
                 <!-- Titre -->
                 <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-heading me-2"></i>Titre de votre collaboration
-                    </label>
-                    <input type="text" 
-                           name="title" 
-                           class="form-control" 
-                           value="{{ form.title.value|default:'' }}" 
-                           maxlength="100"
-                           placeholder="Donnez un titre attractif à votre collaboration...">
-                    {% if form.title.errors %}
-                        <div class="text-danger mt-1">{{ form.title.errors }}</div>
-                    {% endif %}
+                    <label class="form-label">Titre</label>
+                    <input type="text" name="title" class="form-control" maxlength="100" value="{{ form.title.value|default:'' }}">
+                    {% if form.title.errors %}<div class="text-danger">{{ form.title.errors }}</div>{% endif %}
                     <div class="character-count" id="titleCount">0/100 caractères</div>
                 </div>
 
                 <!-- Description -->
                 <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-align-left me-2"></i>Description détaillée
-                    </label>
-                    <textarea name="content" 
-                              class="form-control form-textarea" 
-                              maxlength="2000"
-                              placeholder="Décrivez votre projet en détail, vos attentes, le type de collaboration recherchée...">{{ form.content.value|default:'' }}</textarea>
-                    {% if form.content.errors %}
-                        <div class="text-danger mt-1">{{ form.content.errors }}</div>
-                    {% endif %}
+                    <label class="form-label">Description</label>
+                    <textarea name="content" class="form-control form-textarea" maxlength="2000">{{ form.content.value|default:'' }}</textarea>
+                    {% if form.content.errors %}<div class="text-danger">{{ form.content.errors }}</div>{% endif %}
                     <div class="character-count" id="contentCount">0/2000 caractères</div>
                 </div>
 
                 <!-- Image actuelle -->
                 {% if post.image %}
                 <div class="form-group">
-                    <label class="current-image-label">
-                        <i class="fas fa-image me-2"></i>Image actuelle
-                    </label>
-                    <div class="image-preview-container">
-                        <img src="{{ post.image.url }}" class="current-image" alt="Image actuelle">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="image-clear" id="image-clear">
-                            <label class="form-check-label text-danger" for="image-clear">
-                                <i class="fas fa-trash me-1"></i>Supprimer l'image actuelle
-                            </label>
-                        </div>
+                    <label>Image actuelle</label>
+                    <img src="{{ post.image.url }}" class="current-image" alt="Image actuelle">
+                    <div class="form-check">
+                        <input type="checkbox" name="image-clear" id="image-clear" class="form-check-input">
+                        <label class="form-check-label text-danger" for="image-clear">Supprimer l'image actuelle</label>
                     </div>
                 </div>
                 {% endif %}
 
                 <!-- Nouvelle image -->
                 <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-camera me-2"></i>
-                        {% if post.image %}Changer l'image{% else %}Ajouter une image{% endif %} (optionnelle)
-                    </label>
+                    <label>{% if post.image %}Changer l'image{% else %}Ajouter une image{% endif %}</label>
                     <div class="file-upload-area" id="fileUploadArea">
-                        <div class="file-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        <h5>Glissez-déposez votre nouvelle image ici</h5>
-                        <p class="text-muted">ou cliquez pour parcourir vos fichiers</p>
-                        <p class="small text-muted">Formats supportés: JPG, PNG, GIF - Max: 5MB</p>
+                        <p>Glissez-déposez ou cliquez pour sélectionner un fichier</p>
                         <input type="file" name="image" class="d-none" accept="image/*">
                     </div>
                     <div class="text-center">
-                        <img id="imagePreview" class="image-preview" alt="Aperçu de la nouvelle image">
+                        <img id="imagePreview" class="image-preview" alt="Aperçu">
                     </div>
-                    {% if form.image.errors %}
-                        <div class="text-danger mt-2">{{ form.image.errors }}</div>
-                    {% endif %}
+                    {% if form.image.errors %}<div class="text-danger">{{ form.image.errors }}</div>{% endif %}
                 </div>
 
-                <!-- Catégorie (optionnel) -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-tag me-2"></i>Catégorie (optionnelle)
-                    </label>
-                    <select class="form-select" name="category">
-                        <option value="">Sélectionnez une catégorie</option>
-                        <option value="peinture" {% if post.category == 'peinture' %}selected{% endif %}>Peinture</option>
-                        <option value="dessin" {% if post.category == 'dessin' %}selected{% endif %}>Dessin</option>
-                        <option value="sculpture" {% if post.category == 'sculpture' %}selected{% endif %}>Sculpture</option>
-                        <option value="photographie" {% if post.category == 'photographie' %}selected{% endif %}>Photographie</option>
-                        <option value="digital" {% if post.category == 'digital' %}selected{% endif %}>Art Digital</option>
-                        <option value="autre" {% if post.category == 'autre' %}selected{% endif %}>Autre</option>
-                    </select>
-                </div>
-
-                <!-- Niveau requis -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-chart-line me-2"></i>Niveau requis (optionnel)
-                    </label>
-                    <select class="form-select" name="skill_level">
-                        <option value="">Tous niveaux</option>
-                        <option value="debutant" {% if post.skill_level == 'debutant' %}selected{% endif %}>Débutant</option>
-                        <option value="intermediaire" {% if post.skill_level == 'intermediaire' %}selected{% endif %}>Intermédiaire</option>
-                        <option value="avance" {% if post.skill_level == 'avance' %}selected{% endif %}>Avancé</option>
-                        <option value="professionnel" {% if post.skill_level == 'professionnel' %}selected{% endif %}>Professionnel</option>
-                    </select>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                    <a href="{% url 'collaboration_detail' post.id %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-eye me-1"></i> Voir le post
-                    </a>
-                    <div>
-                        <a href="{% url 'collaborations_list' %}" class="btn btn-outline-danger me-2">
-                            <i class="fas fa-times me-1"></i> Annuler
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Enregistrer les modifications
-                        </button>
-                    </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'collaboration_detail' post.id %}" class="btn btn-outline-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-success-custom">Enregistrer</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Compteur de caractères pour le titre
+        document.addEventListener('DOMContentLoaded', function(){
             const titleInput = document.querySelector('input[name="title"]');
             const titleCount = document.getElementById('titleCount');
-            
-            if (titleInput) {
-                titleInput.addEventListener('input', function() {
-                    const count = this.value.length;
-                    titleCount.textContent = `${count}/100 caractères`;
-                    
-                    if (count > 80) {
-                        titleCount.className = 'character-count warning';
-                    } else {
-                        titleCount.className = 'character-count';
-                    }
-                });
-                
-                // Initialiser le compteur
-                titleInput.dispatchEvent(new Event('input'));
-            }
-            
-            // Compteur de caractères pour le contenu
             const contentInput = document.querySelector('textarea[name="content"]');
             const contentCount = document.getElementById('contentCount');
-            
-            if (contentInput) {
-                contentInput.addEventListener('input', function() {
-                    const count = this.value.length;
-                    contentCount.textContent = `${count}/2000 caractères`;
-                    
-                    if (count > 1800) {
-                        contentCount.className = 'character-count danger';
-                    } else if (count > 1500) {
-                        contentCount.className = 'character-count warning';
-                    } else {
-                        contentCount.className = 'character-count';
-                    }
-                });
-                
-                // Initialiser le compteur
-                contentInput.dispatchEvent(new Event('input'));
+
+            function updateCount(input, counter, limit1, limit2){
+                const count = input.value.length;
+                counter.textContent = `${count}/${input.maxLength} caractères`;
+                counter.className = 'character-count';
+                if(count > limit2) counter.classList.add('danger');
+                else if(count > limit1) counter.classList.add('warning');
             }
-            
-            // Gestion de l'upload d'image
+
+            if(titleInput){ titleInput.addEventListener('input',()=>updateCount(titleInput,titleCount,80,100)); titleInput.dispatchEvent(new Event('input')); }
+            if(contentInput){ contentInput.addEventListener('input',()=>updateCount(contentInput,contentCount,1500,1800)); contentInput.dispatchEvent(new Event('input')); }
+
+            // Gestion du drag & drop
             const fileInput = document.querySelector('input[name="image"]');
-            const fileUploadArea = document.getElementById('fileUploadArea');
-            const imagePreview = document.getElementById('imagePreview');
-            
-            if (fileInput && fileUploadArea) {
-                // Clic sur la zone d'upload
-                fileUploadArea.addEventListener('click', function() {
-                    fileInput.click();
-                });
-                
-                // Changement de fichier
-                fileInput.addEventListener('change', function(e) {
-                    if (this.files && this.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            imagePreview.src = e.target.result;
-                            imagePreview.style.display = 'block';
-                        }
-                        reader.readAsDataURL(this.files[0]);
-                    }
-                });
-                
-                // Drag and drop
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    fileUploadArea.addEventListener(eventName, preventDefaults, false);
-                });
-                
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+            const fileArea = document.getElementById('fileUploadArea');
+            const preview = document.getElementById('imagePreview');
+
+            fileArea.addEventListener('click',()=>fileInput.click());
+
+            fileInput.addEventListener('change', function(){
+                if(this.files && this.files[0]){
+                    const reader = new FileReader();
+                    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; }
+                    reader.readAsDataURL(this.files[0]);
                 }
-                
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    fileUploadArea.addEventListener(eventName, highlight, false);
-                });
-                
-                ['dragleave', 'drop'].forEach(eventName => {
-                    fileUploadArea.addEventListener(eventName, unhighlight, false);
-                });
-                
-                function highlight() {
-                    fileUploadArea.classList.add('dragover');
-                }
-                
-                function unhighlight() {
-                    fileUploadArea.classList.remove('dragover');
-                }
-                
-                fileUploadArea.addEventListener('drop', handleDrop, false);
-                
-                function handleDrop(e) {
-                    const dt = e.dataTransfer;
-                    const files = dt.files;
-                    fileInput.files = files;
-                    
-                    // Déclencher l'événement change
-                    const event = new Event('change');
-                    fileInput.dispatchEvent(event);
-                }
-            }
-            
-            // Confirmation avant suppression de l'image
-            const imageClearCheckbox = document.getElementById('image-clear');
-            if (imageClearCheckbox) {
-                imageClearCheckbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        if (!confirm('Êtes-vous sûr de vouloir supprimer l\'image actuelle ? Cette action est irréversible.')) {
-                            this.checked = false;
-                        }
-                    }
+            });
+
+            ['dragenter','dragover','dragleave','drop'].forEach(e => fileArea.addEventListener(e, ev => ev.preventDefault()));
+            ['dragenter','dragover'].forEach(e => fileArea.addEventListener(e, ()=>fileArea.classList.add('dragover')));
+            ['dragleave','drop'].forEach(e => fileArea.addEventListener(e, ()=>fileArea.classList.remove('dragover')));
+            fileArea.addEventListener('drop', function(e){
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            });
+
+            // Confirmation suppression image
+            const imageClear = document.getElementById('image-clear');
+            if(imageClear){
+                imageClear.addEventListener('change', function(){
+                    if(this.checked && !confirm("Voulez-vous vraiment supprimer l'image actuelle ?")) this.checked=false;
                 });
             }
         });

@@ -28,6 +28,8 @@ from .utils import sequence_similarity, tfidf_similarity, embedding_similarity, 
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from apps.booksRecommendation.models import UserInteraction
+from django.db.models import Q
+
 
 # .
 # Test route
@@ -45,7 +47,7 @@ def book_list(request):
     if request.user.is_staff:  # admin
         books = Book.objects.all()
     else:  # artiste
-        books = Book.objects.filter(author=request.user)
+        books = Book.objects.filter(Q(author=request.user) | Q(collaborators=request.user)).distinct()
     return render(request, 'book/book_list.html', {'books': books})
 
 
@@ -337,7 +339,7 @@ def read_book_content(file_field):
 @login_required
 def book_editor(request, id):
     book = get_object_or_404(Book, id=id)
-    if not request.user.is_staff and book.author != request.user:
+    if not request.user.is_staff and request.user != book.author and request.user not in book.collaborators.all():
         return redirect('book_list')
 
     if request.method == 'POST':
