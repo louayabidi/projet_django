@@ -105,3 +105,8 @@ STATICFILES_DIRS = (os.path.join(CORE_DIR, 'apps/static'),)
 AUTH_USER_MODEL = 'authentication.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+MIGRATION_MODULES = {
+    'forum': None,
+}
