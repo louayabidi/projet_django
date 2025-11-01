@@ -20,8 +20,11 @@ nltk.download('punkt', quiet=True)
 logger = logging.getLogger(__name__)
 
 # Google Custom Search API credentials (add to your settings.py or .env)
+
+
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'AIzaSyD6UdQVEI-oksSgZU2azISTYO8K3Qw7NSg')
 GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID', '93c28cbfa63ad47c3')
+
 
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
