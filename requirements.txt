@@ -1,40 +1,8 @@
-# Core Django
 Django==4.2
-asgiref==3.10.0
-sqlparse==0.4.1
-
-# Database
-dj-database-url==0.5.0
-psycopg2-binary==2.9.11
-
-# Environment
-python-decouple==3.4
-
-# Payments
-stripe==8.8.0
-
-# Static files
-whitenoise==6.8.1
-
-# Production
 gunicorn==20.1.0
-
-# Development
-autopep8==2.0.4
-
-# Images
+psycopg2-binary==2.9.11
+whitenoise==6.8.1
+python-decouple==3.8
 Pillow==10.4.0
-
-# Requests (pour APIs)
-requests==2.32.5
-
-# Web scraping (si nécessaire)
-beautifulsoup4==4.12.3
-googlesearch-python==1.2.4
-
-# NLP (si nécessaire pour la recherche)
-nltk==3.8.1
-sentence-transformers==5.1.2
-
-# Utilitaires
-packaging==25.0
+stripe==8.8.0
+dj-database-url==0.5.0

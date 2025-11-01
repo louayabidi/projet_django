@@ -6,18 +6,26 @@ Copyright (c) 2019 - present AppSeed.us
 import os
 from decouple import config
 from pathlib import Path
-from decouple import config
+import dj_database_url
+
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
-STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = config('SERVER', default='127.0.0.1').split(',')
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+# Hosts configuration for Render
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME, 'localhost', '127.0.0.1']
+else:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -55,7 +63,6 @@ LOGOUT_REDIRECT_URL = "home"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -67,7 +74,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
             ],
         },
     },
@@ -75,22 +81,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+# Database Configuration for Render
+# Priority: DATABASE_URL (Render) > Individual DB settings > SQLite fallback
+DATABASE_URL = config('DATABASE_URL', default=None)
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT',default=5432, cast=int),
+if DATABASE_URL:
+    # Configuration pour Render (PostgreSQL)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
-
-
+elif config('DB_NAME', default=''):
+    # Configuration manuelle PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT', default=5432, cast=int),
+        }
+    }
+else:
+    # Fallback SQLite pour le développement
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -111,6 +134,19 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(CORE_DIR, 'apps/static'),)
+
+# WhiteNoise configuration for better static file handling
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Custom user model
 AUTH_USER_MODEL = 'authentication.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Security settings for production
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
