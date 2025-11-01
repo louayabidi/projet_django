@@ -15,6 +15,10 @@ beautifulsoup4>=4.12.0
 pillow==12.0.0
 reportlab==4.4.4
 
+# NLP for book app (lightweight)
+nltk==3.9.1
+textblob==0.17.1
+
 # Utilities
 requests>=2.32.0
 urllib3>=2.0.0
