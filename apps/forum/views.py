@@ -4,16 +4,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
+from .ai_config import ENABLE_SUMMARIZER, ENABLE_TOXICITY_DETECTOR, ENABLE_AI_RESPONSES
 
 # ===== IMPORTS DES SERVICES IA =====
 
 # Summarizer
-try:
-    from .summarizer import discussion_summarizer
-    SUMMARIZER_AVAILABLE = True
-except ImportError as e:
+if ENABLE_SUMMARIZER:
+    try:
+        from .summarizer import discussion_summarizer
+        SUMMARIZER_AVAILABLE = True
+    except ImportError as e:
+        SUMMARIZER_AVAILABLE = False
+else:
     SUMMARIZER_AVAILABLE = False
-    
+
+if not SUMMARIZER_AVAILABLE:
     class BasicSummarizer:
         def should_summarize(self, text):
             return len(text.split()) > 80 if text else False
@@ -28,14 +33,19 @@ except ImportError as e:
     discussion_summarizer = BasicSummarizer()
 
 # Toxicity Detector
-try:
-    from .toxicity_detector import toxicity_detector
-    TOXICITY_DETECTOR_AVAILABLE = True
-except ImportError:
+if ENABLE_TOXICITY_DETECTOR:
+    try:
+        from .toxicity_detector import toxicity_detector
+        TOXICITY_DETECTOR_AVAILABLE = True
+    except ImportError:
+        TOXICITY_DETECTOR_AVAILABLE = False
+else:
     TOXICITY_DETECTOR_AVAILABLE = False
-    
+
+if not TOXICITY_DETECTOR_AVAILABLE:
     class BasicToxicityDetector:
         def analyze_toxicity(self, text):
+            # Basic word-based detection (no ML model needed)
             toxic_words = ['stupide', 'idiot', 'imbécile', 'connard', 'merde', 'salop', 'putain']
             if any(word in text.lower() for word in toxic_words):
                 return 0.8
@@ -44,12 +54,16 @@ except ImportError:
     toxicity_detector = BasicToxicityDetector()
 
 # AI Response Generator
-try:
-    from .ai_response_generator import ai_response_generator
-    AI_RESPONSE_AVAILABLE = True
-except ImportError as e:
+if ENABLE_AI_RESPONSES:
+    try:
+        from .ai_response_generator import ai_response_generator
+        AI_RESPONSE_AVAILABLE = True
+    except ImportError as e:
+        AI_RESPONSE_AVAILABLE = False
+else:
     AI_RESPONSE_AVAILABLE = False
-    
+
+if not AI_RESPONSE_AVAILABLE:
     class BasicResponseGenerator:
         def generate_responses(self, post_content, num_responses=3):
             return [
