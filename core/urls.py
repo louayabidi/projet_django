@@ -10,7 +10,7 @@ urlpatterns = [
     path('books/', include('apps.book.urls')),          # Front-end classique
     path("", include("apps.home.urls")),
     path('collaboration/', include('apps.collaboration.urls')),
-    path('forum/', include('apps.forum.urls')),
+   
     path('badges/', include('apps.badge.urls')),
 ]
 

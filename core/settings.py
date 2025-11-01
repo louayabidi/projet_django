@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.authentication',
     'apps.book',
-    'apps.forum',
+   
     'apps.collaboration',
     'apps.badge',
 ]
