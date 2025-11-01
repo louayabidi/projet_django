@@ -11,9 +11,7 @@ from .forms import PostForm, CommentForm
 try:
     from .summarizer import discussion_summarizer
     SUMMARIZER_AVAILABLE = True
-    print(" Summarizer chargé")
 except ImportError as e:
-    print(f" Summarizer non disponible: {e}")
     SUMMARIZER_AVAILABLE = False
     
     class BasicSummarizer:
@@ -33,14 +31,11 @@ except ImportError as e:
 try:
     from .toxicity_detector import toxicity_detector
     TOXICITY_DETECTOR_AVAILABLE = True
-    print(" Toxicity detector chargé")
 except ImportError:
-    print(" Toxicity detector non disponible")
     TOXICITY_DETECTOR_AVAILABLE = False
     
     class BasicToxicityDetector:
         def analyze_toxicity(self, text):
-            # Détection basique de mots interdits
             toxic_words = ['stupide', 'idiot', 'imbécile', 'connard', 'merde', 'salop', 'putain']
             if any(word in text.lower() for word in toxic_words):
                 return 0.8
@@ -52,14 +47,11 @@ except ImportError:
 try:
     from .ai_response_generator import ai_response_generator
     AI_RESPONSE_AVAILABLE = True
-    print(" Générateur de réponses IA chargé")
 except ImportError as e:
-    print(f" Générateur IA non disponible: {e}")
     AI_RESPONSE_AVAILABLE = False
     
-    # Fallback basique
     class BasicResponseGenerator:
-        def generate_responses(self, post_content, num_responses=3, max_length=100):
+        def generate_responses(self, post_content, num_responses=3):
             return [
                 "Cette discussion soulève des points très intéressants sur la littérature contemporaine.",
                 "Je trouve votre analyse particulièrement pertinente dans le contexte actuel.",
@@ -76,14 +68,12 @@ def post_list(request):
     posts = Post.objects.all()
     total_comments = Comment.objects.count()
     
-    # Préparer les données pour le template
     for post in posts:
         if SUMMARIZER_AVAILABLE:
             post.has_summary = discussion_summarizer.should_summarize(post.content)
             if post.has_summary:
                 post.summary = discussion_summarizer.summarize_text(post.content)
         else:
-            # Fallback si summarizer non disponible
             post.has_summary = len(post.content.split()) > 80 if post.content else False
             if post.has_summary and post.content:
                 post.summary = post.content[:147] + '...' if len(post.content) > 150 else post.content
@@ -99,34 +89,33 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     comments = post.comments.all()
     
-    # Générer le résumé
+    # Generate summary
     summary = None
     if SUMMARIZER_AVAILABLE:
         if discussion_summarizer.should_summarize(post.content):
             summary = discussion_summarizer.summarize_text(post.content)
     
-    # Générer des réponses IA - APPEL CORRIGÉ
+    # Generate AI responses
     ai_responses = []
     if AI_RESPONSE_AVAILABLE and post.content:
         try:
-            # SEULEMENT num_responses, pas de max_length
             ai_responses = ai_response_generator.generate_responses(
                 post.content, 
                 num_responses=3
             )
-            print(f"🎯 {len(ai_responses)} réponses IA générées")
         except Exception as e:
-            print(f"❌ Erreur génération réponses IA: {e}")
+            import logging
+            logging.error(f"❌ Erreur génération réponses IA: {e}")
             ai_responses = []
     
-    # ===== GESTION DES COMMENTAIRES =====
+    # ===== COMMENT HANDLING =====
     if request.method == 'POST' and request.user.is_authenticated:
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             content = comment_form.cleaned_data['content']
             
-            # Vérifier la toxicité
-            toxicity_score = 0.1  # Valeur par défaut safe
+            # Check toxicity
+            toxicity_score = 0.1
             if TOXICITY_DETECTOR_AVAILABLE:
                 toxicity_score = toxicity_detector.analyze_toxicity(content)
             
@@ -145,7 +134,6 @@ def post_detail(request, pk):
                     'ai_responses': ai_responses
                 })
             else:
-                # Commentaire acceptable
                 comment = comment_form.save(commit=False)
                 comment.post = post
                 comment.author = request.user
@@ -162,7 +150,7 @@ def post_detail(request, pk):
         'comment_form': comment_form,
         'summary': summary,
         'ai_responses': ai_responses,
-        'toxicity_score': None  # Reset pour les requêtes GET
+        'toxicity_score': None
     })
 
 @login_required
@@ -171,7 +159,6 @@ def post_create(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            # Vérifier la toxicité du post
             content = form.cleaned_data['content']
             toxicity_score = 0.1
             if TOXICITY_DETECTOR_AVAILABLE:
@@ -210,7 +197,6 @@ def post_edit(request, pk):
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
-            # Vérifier la toxicité de l'édition
             content = form.cleaned_data['content']
             toxicity_score = 0.1
             if TOXICITY_DETECTOR_AVAILABLE:
