@@ -16,11 +16,15 @@
                 </div>
                 <ul class="navbar-nav navbar-nav-hover align-items-lg-center">
                     <li class="nav-item me-2">
-                        <a href="index.html" class="nav-link">Acceuil</a>
+                        <a href="{% url 'home' %}" class="nav-link">Accueil</a>
                     </li>
                     <li class="nav-item me-2">
                         <a href="{% url 'book_list' %}" class="nav-link">Bibliothèque</a>
                     </li>
+                    <li class="nav-item me-2">
+                        <a href="{% url 'my_library' %}" class="nav-link">Mes Achats</a>
+                    </li>
+                    
                 </ul>
             </div>
 

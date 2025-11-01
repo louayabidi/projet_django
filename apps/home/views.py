@@ -15,14 +15,23 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from apps.book.models import Book
 from django.contrib.auth import get_user_model
+
+from apps.booksRecommendation.views import get_user_recommendations
 User = get_user_model()
 @login_required(login_url="/login/")
 def index(request):
-    context = {'segment': 'index'}
+    recommended_books = []
+
+    if request.user.is_authenticated:
+        recommended_books = get_user_recommendations(request.user.id, top_n=5)
+
+    context = {
+        'segment': 'index',
+        'recommended_books': recommended_books
+    }
 
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))
-
 
 @login_required(login_url="/login/")
 def pages(request):

@@ -1,0 +1,12 @@
+<!-- books/templates/books/book_detail.html -->
+<h1>{{ book.title }}</h1>
+<p>{{ book.synopsis }}</p>
+
+<h2>Recommended Books</h2>
+<ul>
+  {% for rec in recommended_books %}
+    <li>{{ rec.title }}</li>
+  {% empty %}
+    <li>No recommendations yet.</li>
+  {% endfor %}
+</ul>

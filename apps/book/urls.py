@@ -24,4 +24,6 @@ urlpatterns = [
     path('favorites/remove/<int:book_id>/', views.remove_from_favorites, name='remove_favorites'),
     path('favorites/', views.view_favorites, name='view_favorites'),
     path('favorites/check/<int:book_id>/', views.check_is_favorite, name='check_favorite_status'),
+    path('recommend/<int:book_id>/', views.book_detail, name='book_detail'),
+    path('my-library/', views.my_library, name='my_library'),
 ]

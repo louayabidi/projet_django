@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
+
+from apps.booksRecommendation.views import get_book_recommendations
+from apps.cart.models import UserLibrary
 from .models import Book
 from .forms import BookForm
 from reportlab.lib.pagesizes import A4
@@ -353,3 +356,16 @@ def check_is_favorite(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     is_favorite = book.favorites.filter(id=request.user.id).exists()
     return JsonResponse({"is_favorite": is_favorite})
+def book_detail(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    recommended_books = get_book_recommendations(book_id, top_n=5)
+    
+    return render(request, 'book/book_detail.html', {
+        'book': book,
+        'recommended_books': recommended_books
+    })
+@login_required(login_url="/login/")
+def my_library(request):
+    user_books = UserLibrary.objects.filter(user=request.user).select_related('book')
+    books = [entry.book for entry in user_books]  # Extraire les objets Book
+    return render(request, 'book/my_library.html', {'books': books})

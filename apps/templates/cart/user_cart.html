@@ -69,9 +69,12 @@
                     </p>
                     
                     {% if cart_items %}
-                    <a href="{% url 'checkout' %}" class="btn btn-success">
-                        <i class="fas fa-credit-card me-2"></i> Passer au paiement
-                    </a>
+                    <form action="{% url 'checkout' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-credit-card me-2"></i> Passer au paiement
+                        </button>
+                    </form>
                     <a href="{% url 'clear_cart' %}" class="btn btn-danger ms-2" 
                        onclick="return confirm('Êtes-vous sûr de vouloir vider votre panier ?')">
                         <i class="fas fa-trash me-2"></i> Vider le panier
