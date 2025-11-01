@@ -24,8 +24,9 @@ urlpatterns = [
     path('api/ai/suggest-continue/', ai_views.suggest_continue, name='ai_suggest_continue'),
     path('api/ai/rewrite-text/', ai_views.rewrite_text, name='ai_rewrite_text'),
     path('api/ai/suggest-titles/', ai_views.suggest_titles, name='ai_suggest_titles'),
+    path('api/ai/check-web-plagiarism/', ai_views.check_web_plagiarism_view, name='check_web_plagiarism'),
 ]
     
-path('api/ai/check-web-plagiarism/', ai_views.check_web_plagiarism_view, name='check_web_plagiarism'),
+
 
 
